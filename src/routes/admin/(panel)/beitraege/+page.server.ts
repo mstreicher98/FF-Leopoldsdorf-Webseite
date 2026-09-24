@@ -15,6 +15,9 @@ const titleKey = sql`replace(replace(replace(replace(replace(replace(replace(ltr
 const SORTS = {
 	neueste: [desc(posts.date), desc(posts.id)],
 	aelteste: [asc(posts.date), asc(posts.id)],
+	// Einsätze: „Alarmiert am … um …“ – Tag und Uhrzeit, Berichte ohne Uhrzeit am Ende des Tages
+	alarmierung: [desc(posts.date), sql`${posts.time} DESC NULLS LAST`, desc(posts.id)],
+	alarmierung_alt: [asc(posts.date), sql`${posts.time} ASC NULLS LAST`, asc(posts.id)],
 	bearbeitet: [desc(posts.updatedAt), desc(posts.id)],
 	angelegt: [desc(posts.createdAt), desc(posts.id)],
 	titel: [asc(titleKey), asc(posts.id)]
@@ -46,6 +49,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 				title: posts.title,
 				category: posts.category,
 				date: posts.date,
+				time: posts.time,
 				status: posts.status,
 				pinned: posts.pinned,
 				einsatzNummer: posts.einsatzNummer,

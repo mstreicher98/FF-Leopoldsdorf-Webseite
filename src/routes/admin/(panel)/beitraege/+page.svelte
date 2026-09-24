@@ -7,10 +7,13 @@
 	import EinsatzChip from '$lib/components/site/EinsatzChip.svelte';
 	import Pagination from '$lib/components/site/Pagination.svelte';
 	import { CATEGORIES, CATEGORY_ORDER } from '$lib/categories';
-	import { formatDayShort, relativeTime } from '$lib/format';
+	import { formatDayShort, formatTime, relativeTime } from '$lib/format';
 	import { mediaSrc } from '$lib/media';
 
 	let { data } = $props();
+
+	// bei Sortierung nach Alarmierung auch die Uhrzeit zeigen
+	const alarmSort = $derived(data.filter.sort.startsWith('alarmierung'));
 
 	function href(p: number) {
 		const q = new URLSearchParams(page.url.searchParams);
@@ -58,6 +61,8 @@
 	<select class="select" name="sortierung" value={data.filter.sort} onchange={filter} aria-label="Sortierung">
 		<option value="">Neueste zuerst</option>
 		<option value="aelteste">Älteste zuerst</option>
+		<option value="alarmierung">Alarmierung – neueste zuerst</option>
+		<option value="alarmierung_alt">Alarmierung – älteste zuerst</option>
 		<option value="bearbeitet">Zuletzt bearbeitet</option>
 		<option value="angelegt">Zuletzt angelegt</option>
 		<option value="titel">Titel A–Z</option>
@@ -85,7 +90,7 @@
 								{:else}
 									<span>{CATEGORIES[p.category].label}</span>
 								{/if}
-								<span class="tabular">{formatDayShort(p.date)}</span>
+								<span class="tabular">{formatDayShort(p.date)}{#if alarmSort && p.time}, {formatTime(p.time)}{/if}</span>
 								{#if data.filter.sort === 'bearbeitet'}
 									<span>bearbeitet {relativeTime(p.updatedAt)}</span>
 								{:else if data.filter.sort === 'angelegt'}
