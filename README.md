@@ -12,7 +12,7 @@
 - Einsatzstatistik pro Jahr, berechnet aus den veröffentlichten Berichten (Brandsicherheitswachen zählen nicht)
 - Termine mit Kalender-Abo (`/termine.ics`) und Einzeltermin zum Speichern im Handy
 - Kommando, Mannschaft (mit Dienstgrad-Abzeichen) und Fuhrpark mit Fahrzeugseiten
-- Bürgerservice-Seiten, Über uns, Impressum, Datenschutz – alles im Admin bearbeitbar
+- Bürgerservice-Seiten, Impressum, Datenschutz – alles im Admin bearbeitbar (das Menü „Feuerwehr“ zeigt Kommando, Mannschaft und Fuhrpark)
 - Bildergalerie mit Vollbild, Teilen per WhatsApp, Facebook, E-Mail oder Link
 - Handytauglich, Notruf 122 immer im Kopf der Seite, keine Cookies, keine Fremddienste
 

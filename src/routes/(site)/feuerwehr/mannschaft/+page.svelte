@@ -10,13 +10,8 @@
 	const byRank = (a: MemberView, b: MemberView) =>
 		dienstgrad(b.rank).order - dienstgrad(a.rank).order || a.lastName.localeCompare(b.lastName, 'de');
 
+	// Das Kommando hat eine eigene Seite (/feuerwehr/kommando) und erscheint hier nicht
 	const sections = $derived([
-		{
-			id: 'kommando',
-			title: 'Kommando',
-			items: data.visible.filter((m) => m.kommandoPosition).sort((a, b) => a.kommandoSort - b.kommandoSort),
-			hidden: data.hidden.kommando
-		},
 		{
 			id: 'chargen',
 			title: 'Chargen',

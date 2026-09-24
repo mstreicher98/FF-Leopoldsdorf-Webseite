@@ -16,14 +16,6 @@ export interface SeedPage {
 	contentHtml: string;
 }
 
-const UEBER_UNS = `
-<p>Die Freiwillige Feuerwehr Leopoldsdorf ist rund um die Uhr für die Menschen in Leopoldsdorf da – ehrenamtlich. Wenn die Sirene heult oder der Pager piept, lassen unsere Mitglieder Arbeit, Familie und Freizeit stehen und rücken aus: zu Bränden, Verkehrsunfällen, Unwettern und Schadstoffaustritten.</p>
-<p>Damit das im Ernstfall klappt, üben wir regelmäßig, bilden uns weiter und halten Fahrzeuge und Geräte einsatzbereit. Unsere Feuerwehrjugend lernt dabei schon früh, worauf es ankommt.</p>
-<h2>Mitmachen</h2>
-<p>Wir freuen uns über jede helfende Hand – ob im Einsatzdienst, in der Verwaltung oder bei der Feuerwehrjugend. Vorkenntnisse brauchst du keine, alles Nötige lernst du bei uns.</p>
-<p>Schreib uns einfach eine E-Mail oder komm bei einer Übung im Feuerwehrhaus vorbei.</p>
-`;
-
 const SIRENEN = `
 <p>Die Sirenensignale sind Teil des österreichischen Warn- und Alarmsystems. Sie alarmieren die Feuerwehr und warnen die Bevölkerung vor Gefahren. Es lohnt sich, die Signale zu kennen, damit man im Ernstfall richtig reagiert.</p>
 <h2>Sirenenprobe</h2>
@@ -170,16 +162,6 @@ const DATENSCHUTZ = `
 `;
 
 export const SEED_PAGES: SeedPage[] = [
-	{
-		slug: 'ueber-uns',
-		section: 'feuerwehr',
-		title: 'Über uns',
-		subtitle: 'Die Freiwillige Feuerwehr Leopoldsdorf stellt sich vor',
-		menuText: 'Wer wir sind und wie du mitmachen kannst',
-		sortOrder: 0,
-		system: false,
-		contentHtml: UEBER_UNS
-	},
 	{
 		slug: 'sirenensignale',
 		section: 'buergerservice',

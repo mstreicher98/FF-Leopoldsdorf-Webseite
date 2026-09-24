@@ -181,8 +181,10 @@
 		font-stretch: 72%;
 		line-height: 1;
 	}
+	/* minmax(0, …): Karten nie breiter als der Bildschirm, auch mit Diagramm und langen Titeln */
 	.cols {
 		display: grid;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 1rem;
 		margin-top: 1rem;
 	}

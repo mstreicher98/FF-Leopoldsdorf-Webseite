@@ -4,11 +4,15 @@
 
 	let { data } = $props();
 
-	const SECTIONS = [
-		{ id: 'feuerwehr', title: 'Menü „Feuerwehr“', text: 'Neben Kommando, Mannschaft und Fuhrpark' },
+	// Das Menü „Feuerwehr“ hat nur noch Kommando, Mannschaft und Fuhrpark. Ältere Seiten
+	// dort (z. B. aus einer Sicherung) erscheinen noch, damit man sie löschen kann.
+	const SECTIONS = $derived([
+		...(data.pages.some((p) => p.section === 'feuerwehr')
+			? [{ id: 'feuerwehr', title: 'Menü „Feuerwehr“', text: 'Neue Seiten können hier nicht mehr angelegt werden' }]
+			: []),
 		{ id: 'buergerservice', title: 'Menü „Bürgerservice“', text: 'Informationen für die Bevölkerung' },
 		{ id: 'rechtliches', title: 'Rechtliches', text: 'Im Footer verlinkt, kann nicht gelöscht werden' }
-	] as const;
+	]);
 
 	const href = (p: { slug: string; section: string }) => (p.section === 'rechtliches' ? `/${p.slug}` : `/${p.section}/${p.slug}`);
 </script>
@@ -18,7 +22,7 @@
 <div class="page-head">
 	<div>
 		<h1 class="page-title">Seiten</h1>
-		<p class="page-sub">Feste Textseiten wie „Über uns“, Bürgerservice, Impressum und Datenschutz.</p>
+		<p class="page-sub">Textseiten im Bürgerservice sowie Impressum und Datenschutz.</p>
 	</div>
 	<a href="/admin/seiten/neu" class="btn btn-primary"><Plus size={18} /> Seite</a>
 </div>

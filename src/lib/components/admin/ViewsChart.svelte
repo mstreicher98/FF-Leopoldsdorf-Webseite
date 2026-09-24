@@ -81,6 +81,8 @@
 	.chart {
 		position: relative;
 		width: 100%;
+		/* bis die Breite gemessen ist, hat das Diagramm 600 px – nicht über den Rand ragen lassen */
+		overflow: hidden;
 	}
 	svg {
 		display: block;

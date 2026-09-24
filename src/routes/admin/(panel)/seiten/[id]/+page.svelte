@@ -44,19 +44,11 @@
 					<input class="input" name="untertitel" value={p?.subtitle ?? ''} maxlength="200" />
 				</label>
 				{#if !p}
-					<div class="grid-2">
-						<label class="field">
-							<span class="label">Menü</span>
-							<select class="select" name="bereich">
-								<option value="feuerwehr">Feuerwehr</option>
-								<option value="buergerservice">Bürgerservice</option>
-							</select>
-						</label>
-						<label class="field">
-							<span class="label">Adresse <span class="opt">(leer = aus dem Titel)</span></span>
-							<input class="input" name="adresse" maxlength="60" placeholder="z. B. geschichte" />
-						</label>
-					</div>
+					<!-- Neue Seiten erscheinen im Menü „Bürgerservice“ -->
+					<label class="field">
+						<span class="label">Adresse <span class="opt">(leer = aus dem Titel)</span></span>
+						<input class="input" name="adresse" maxlength="60" placeholder="z. B. hochwasser" />
+					</label>
 				{/if}
 			</section>
 

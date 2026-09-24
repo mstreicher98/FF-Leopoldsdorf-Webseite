@@ -10,9 +10,6 @@ import { intOrNull, requirePermission, str } from '$lib/server/guard';
 import { cleanHtml } from '$lib/server/sanitize';
 import type { Actions, PageServerLoad } from './$types';
 
-/** Diese Adressen sind im Menü „Feuerwehr“ schon vergeben */
-const RESERVED = ['kommando', 'mannschaft', 'fuhrpark'];
-
 async function find(idParam: string) {
 	if (idParam === 'neu') return null;
 	const p = await db
@@ -51,10 +48,10 @@ export const actions: Actions = {
 			await db.update(pages).set(values).where(eq(pages.id, existing.id));
 			id = existing.id;
 		} else {
-			const section = f.get('bereich') === 'buergerservice' ? 'buergerservice' : 'feuerwehr';
+			// Neue Seiten nur im Menü „Bürgerservice“ – das Menü „Feuerwehr“ hat Kommando, Mannschaft und Fuhrpark
+			const section = 'buergerservice';
 			const slug = slugify(str(f.get('adresse'), 60) || values.title, 60);
 			if (!slug) return fail(400, { error: 'Bitte eine gültige Adresse eingeben.' });
-			if (section === 'feuerwehr' && RESERVED.includes(slug)) return fail(400, { error: `Die Adresse „${slug}“ ist schon vergeben.` });
 			if (await db.select({ id: pages.id }).from(pages).where(eq(pages.slug, slug)).get()) {
 				return fail(400, { error: `Es gibt schon eine Seite mit der Adresse „${slug}“.` });
 			}
