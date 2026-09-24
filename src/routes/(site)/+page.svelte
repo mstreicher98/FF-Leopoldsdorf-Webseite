@@ -92,7 +92,7 @@
 				<a href="/taetigkeiten/einsaetze" class="more">Zur Einsatzübersicht</a>
 			</div>
 			{#if data.stats.total > 0}
-				<StatsBar stats={data.stats} note="Gezählt werden alle veröffentlichten Einsatzberichte des Jahres." />
+				<StatsBar stats={data.stats} note="Gezählt werden alle Einsätze des Jahres, auch solche ohne eigenen Bericht." />
 			{:else}
 				<p class="empty">Für {data.stats.year} sind noch keine Einsätze eingetragen.</p>
 			{/if}

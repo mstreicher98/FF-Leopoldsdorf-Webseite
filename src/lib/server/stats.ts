@@ -1,4 +1,4 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { EINSATZ_GROUPS, type EinsatzGroup } from '$lib/einsatz';
 import { db } from './db';
 import { einsatzarten, posts } from './db/schema';
@@ -10,7 +10,7 @@ export interface EinsatzStats {
 }
 
 /**
- * Einsätze eines Jahres aus den veröffentlichten Einsatzberichten.
+ * Einsätze eines Jahres: veröffentlichte Einsatzberichte und Einsätze ohne Bericht („Nur Statistik“).
  * Einsatzarten mit „zählt nicht zur Statistik“ (z. B. Brandsicherheitswache)
  * bleiben draußen; Berichte ohne Einsatzart zählen als „Sonstige“.
  */
@@ -22,7 +22,8 @@ export async function einsatzStats(year: number): Promise<EinsatzStats> {
 		.where(
 			and(
 				eq(posts.category, 'einsatz'),
-				eq(posts.status, 'veroeffentlicht'),
+				// auch Einsätze ohne eigenen Bericht („Nur Statistik“)
+				inArray(posts.status, ['veroeffentlicht', 'statistik']),
 				sql`substr(${posts.date}, 1, 4) = ${String(year)}`,
 				sql`(${einsatzarten.id} IS NULL OR ${einsatzarten.countsInStats} = 1)`
 			)

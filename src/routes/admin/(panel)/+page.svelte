@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CalendarPlus from '@lucide/svelte/icons/calendar-plus';
+	import ClipboardPlus from '@lucide/svelte/icons/clipboard-plus';
 	import FilePlus from '@lucide/svelte/icons/file-plus';
 	import Siren from '@lucide/svelte/icons/siren';
 	import ViewsChart from '$lib/components/admin/ViewsChart.svelte';
@@ -39,6 +40,7 @@
 	</div>
 	<div class="quick">
 		<a href="/admin/beitraege/neu?kategorie=einsatz" class="btn btn-primary"><Siren size={18} /> Einsatzbericht</a>
+		<a href="/admin/beitraege/neu?statistik=1" class="btn"><ClipboardPlus size={18} /> Einsatz ohne Bericht</a>
 		<a href="/admin/beitraege/neu" class="btn"><FilePlus size={18} /> Beitrag</a>
 		<a href="/admin/termine/neu" class="btn"><CalendarPlus size={18} /> Termin</a>
 	</div>

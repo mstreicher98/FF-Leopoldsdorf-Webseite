@@ -9,7 +9,7 @@
 		category: PostCategory;
 		date: string;
 		time: string;
-		status: 'entwurf' | 'veroeffentlicht';
+		status: 'entwurf' | 'veroeffentlicht' | 'statistik';
 		pinned: boolean;
 		summary: string;
 		contentHtml: string;
@@ -54,6 +54,9 @@
 	let gallery = $state<MediaRef[]>(values.gallery);
 	// svelte-ignore state_referenced_locally
 	let nummer = $state(values.einsatzNummer);
+	// Einsatz ohne öffentlichen Bericht – zählt nur in der Statistik
+	// svelte-ignore state_referenced_locally
+	let statsOnly = $state(values.status === 'statistik');
 	let busy = $state(false);
 	let error = $state('');
 	let dirty = $state(false);
@@ -61,6 +64,7 @@
 	const isNew = $derived(values.id === null);
 	const online = $derived(values.status === 'veroeffentlicht');
 	const einsatz = $derived(category === 'einsatz');
+	const reportless = $derived(einsatz && statsOnly);
 	const artGroups = $derived(
 		EINSATZ_GROUPS.map((g) => ({ g, items: einsatzarten.filter((a) => a.group === g && (a.active || a.id === values.einsatzartId)) })).filter((x) => x.items.length)
 	);
@@ -104,8 +108,15 @@
 	<div class="layout">
 		<div class="main stack">
 			<label class="field">
-				<span class="label">Titel</span>
-				<input class="input title-input" name="titel" value={values.title} required maxlength="200" placeholder={einsatz ? 'z. B. Fahrzeugbergung auf der B16' : 'Worum geht es?'} />
+				<span class="label">Titel {#if reportless}<span class="opt">(optional – leer: Stichwort bzw. Einsatzart)</span>{/if}</span>
+				<input
+					class="input title-input"
+					name="titel"
+					value={values.title}
+					required={!reportless}
+					maxlength="200"
+					placeholder={einsatz ? 'z. B. Fahrzeugbergung auf der B16' : 'Worum geht es?'}
+				/>
 			</label>
 
 			<fieldset class="field">
@@ -120,10 +131,20 @@
 			{#if einsatz}
 				<section class="card card-pad einsatz">
 					<h2 class="card-title">Einsatzdaten</h2>
+					<fieldset class="field mt">
+						<legend class="label">Bericht auf der Webseite</legend>
+						<div class="segmented">
+							<label><input type="radio" name="berichtsart" value={false} bind:group={statsOnly} onchange={() => (dirty = true)} /><span>Mit Bericht</span></label>
+							<label><input type="radio" name="berichtsart" value={true} bind:group={statsOnly} onchange={() => (dirty = true)} /><span>Ohne Bericht, nur Statistik</span></label>
+						</div>
+						{#if statsOnly}
+							<span class="hint">Der Einsatz zählt in der Einsatzstatistik, erscheint aber nicht als Beitrag auf der Webseite. Die Einsatzart ist dafür Pflicht.</span>
+						{/if}
+					</fieldset>
 					<div class="grid-2 mt">
 						<label class="field">
 							<span class="label">Einsatzart</span>
-							<select class="select" name="einsatzart" value={values.einsatzartId ?? ''}>
+							<select class="select" name="einsatzart" value={values.einsatzartId ?? ''} required={reportless}>
 								<option value="">– bitte wählen –</option>
 								{#each artGroups as { g, items } (g)}
 									<optgroup label={GROUP_PLURAL[g]}>
@@ -167,18 +188,21 @@
 				</section>
 			{/if}
 
-			<div class="field">
-				<span class="label">Text</span>
-				<RichEditor name="inhalt" value={values.contentHtml} placeholder={einsatz ? 'Was ist passiert, was hat die Feuerwehr gemacht?' : 'Text schreiben …'} />
+			<!-- Ohne Bericht nur ausgeblendet, nicht entfernt: vorhandener Text und Bilder bleiben beim Speichern erhalten -->
+			<div class="stack" style:display={reportless ? 'none' : null}>
+				<div class="field">
+					<span class="label">Text</span>
+					<RichEditor name="inhalt" value={values.contentHtml} placeholder={einsatz ? 'Was ist passiert, was hat die Feuerwehr gemacht?' : 'Text schreiben …'} />
+				</div>
+
+				<GalleryField name="bilder" bind:value={gallery} />
+
+				<label class="field">
+					<span class="label">Kurzfassung <span class="opt">(optional)</span></span>
+					<textarea class="textarea" name="kurzfassung" rows="2" maxlength="400" placeholder="Leer lassen: Die ersten Sätze des Textes werden verwendet.">{values.summary}</textarea>
+					<span class="hint">Erscheint in Übersichten und als Vorschau beim Teilen.</span>
+				</label>
 			</div>
-
-			<GalleryField name="bilder" bind:value={gallery} />
-
-			<label class="field">
-				<span class="label">Kurzfassung <span class="opt">(optional)</span></span>
-				<textarea class="textarea" name="kurzfassung" rows="2" maxlength="400" placeholder="Leer lassen: Die ersten Sätze des Textes werden verwendet.">{values.summary}</textarea>
-				<span class="hint">Erscheint in Übersichten und als Vorschau beim Teilen.</span>
-			</label>
 		</div>
 
 		<aside class="side stack">
@@ -188,10 +212,12 @@
 						<span class="badge">Neu</span>
 					{:else if online}
 						<span class="badge badge-ok">Veröffentlicht</span>
+					{:else if values.status === 'statistik'}
+						<span class="badge badge-info">Nur Statistik</span>
 					{:else}
 						<span class="badge badge-warn">Entwurf</span>
 					{/if}
-					{#if values.slug}
+					{#if values.slug && values.status !== 'statistik'}
 						<a href="/beitrag/{values.slug}" target="_blank" rel="noopener" class="preview">{online ? 'Ansehen' : 'Vorschau'} <ExternalLink size={14} /></a>
 					{/if}
 				</div>
@@ -205,20 +231,22 @@
 						<input class="input" type="time" name="uhrzeit" value={values.time} />
 					</label>
 				</div>
-				<label class="check">
+				<label class="check" style:display={reportless ? 'none' : null}>
 					<input type="checkbox" name="angeheftet" checked={values.pinned} />
 					<span><span class="check-title">Auf der Startseite anheften</span><br /><span class="hint">Für wichtige Hinweise, die oben bleiben sollen.</span></span>
 				</label>
 			</div>
 
-			<div class="card card-pad">
+			<div class="card card-pad" style:display={reportless ? 'none' : null}>
 				<ImageField name="titelbild" label="Titelbild" bind:value={cover} hint="Wird groß über dem Beitrag und in Übersichten gezeigt." />
 			</div>
 		</aside>
 	</div>
 
 	<div class="actionbar">
-		{#if online}
+		{#if reportless}
+			<button class="btn btn-primary" name="status" value="statistik" disabled={busy}>{isNew ? 'Einsatz speichern' : 'Änderungen speichern'}</button>
+		{:else if online}
 			<button class="btn btn-primary" name="status" value="veroeffentlicht" disabled={busy}>Änderungen speichern</button>
 			<button class="btn" name="status" value="entwurf" disabled={busy}>Offline nehmen</button>
 		{:else}

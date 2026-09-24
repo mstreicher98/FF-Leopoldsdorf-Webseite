@@ -2,7 +2,7 @@ import { and, asc, eq, ne } from 'drizzle-orm';
 import { slugify } from '$lib/slug';
 import { logAction } from './audit';
 import { db } from './db';
-import { einsatzarten, POST_CATEGORIES, postImages, posts, postVehicles, vehicles, type PostCategory } from './db/schema';
+import { einsatzarten, POST_CATEGORIES, postImages, posts, postVehicles, vehicles, type PostCategory, type PostStatus } from './db/schema';
 import { checked, idList, intOrNull, isDay, isTime, str, strOrNull } from './guard';
 import { cleanHtml } from './sanitize';
 
@@ -11,7 +11,7 @@ export interface PostInput {
 	category: PostCategory;
 	date: string;
 	time: string | null;
-	status: 'entwurf' | 'veroeffentlicht';
+	status: PostStatus;
 	pinned: boolean;
 	summary: string;
 	contentHtml: string;
@@ -29,14 +29,19 @@ export function parsePostForm(form: FormData): { input?: PostInput; error?: stri
 	const category = str(form.get('kategorie'), 20) as PostCategory;
 	const date = str(form.get('datum'), 10);
 	const time = str(form.get('uhrzeit'), 5);
-	const status = form.get('status') === 'veroeffentlicht' ? 'veroeffentlicht' : 'entwurf';
+	const einsatz = category === 'einsatz';
+	const wanted = form.get('status');
+	// „Nur Statistik“ gibt es nur bei Einsätzen
+	const status: PostStatus = wanted === 'veroeffentlicht' ? 'veroeffentlicht' : wanted === 'statistik' && einsatz ? 'statistik' : 'entwurf';
+	const statsOnly = status === 'statistik';
 
-	if (!title) return { error: 'Bitte einen Titel eingeben.' };
+	// Ohne Bericht darf der Titel fehlen – dann gilt das Stichwort bzw. die Einsatzart (savePost)
+	if (!title && !statsOnly) return { error: 'Bitte einen Titel eingeben.' };
 	if (!POST_CATEGORIES.includes(category)) return { error: 'Bitte eine Kategorie wählen.' };
 	if (!isDay(date)) return { error: 'Bitte ein gültiges Datum eingeben.' };
 	if (time && !isTime(time)) return { error: 'Die Uhrzeit bitte im Format HH:MM eingeben.' };
+	if (statsOnly && !intOrNull(form.get('einsatzart'))) return { error: 'Bitte die Einsatzart wählen – danach wird der Einsatz in der Statistik gezählt.' };
 
-	const einsatz = category === 'einsatz';
 	return {
 		input: {
 			title,
@@ -44,7 +49,8 @@ export function parsePostForm(form: FormData): { input?: PostInput; error?: stri
 			date,
 			time: time || null,
 			status,
-			pinned: checked(form.get('angeheftet')),
+			// ein Einsatz ohne Bericht hat keine öffentliche Seite, die man anheften könnte
+			pinned: !statsOnly && checked(form.get('angeheftet')),
 			summary: str(form.get('kurzfassung'), 400),
 			contentHtml: cleanHtml(String(form.get('inhalt') ?? '')),
 			coverMediaId: intOrNull(form.get('titelbild')),
@@ -71,8 +77,16 @@ async function uniqueSlug(title: string, date: string, exceptId?: number): Promi
 	}
 }
 
+/** Titel für einen Einsatz ohne Bericht, wenn keiner eingegeben wurde: Stichwort, sonst Einsatzart */
+async function fallbackTitle(input: PostInput): Promise<string> {
+	if (input.stichwort) return input.stichwort;
+	const art = input.einsatzartId ? await db.select({ label: einsatzarten.label }).from(einsatzarten).where(eq(einsatzarten.id, input.einsatzartId)).get() : null;
+	return art?.label ?? 'Einsatz';
+}
+
 /** Anlegen (id = null) oder Ändern. Liefert die ID. */
 export async function savePost(id: number | null, input: PostInput, userId: number): Promise<number> {
+	if (!input.title) input = { ...input, title: await fallbackTitle(input) };
 	const { gallery, vehicleIds, ...fields } = input;
 	const existing = id ? await db.select().from(posts).where(eq(posts.id, id)).get() : null;
 	const publishing = input.status === 'veroeffentlicht' && existing?.status !== 'veroeffentlicht';
@@ -116,7 +130,7 @@ export async function savePost(id: number | null, input: PostInput, userId: numb
 			: 'erstellt'
 		: publishing
 			? 'veröffentlicht'
-			: existing.status === 'veroeffentlicht' && input.status === 'entwurf'
+			: existing.status === 'veroeffentlicht' && input.status !== 'veroeffentlicht'
 				? 'zurückgezogen'
 				: 'geändert';
 	await logAction(userId, action, 'beitrag', postId, input.title);

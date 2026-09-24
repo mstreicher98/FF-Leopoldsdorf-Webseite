@@ -9,12 +9,15 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	requirePermission(locals, 'content.manage');
-	const k = url.searchParams.get('kategorie') as PostCategory | null;
+	// ?statistik=1: Einsatz ohne Bericht erfassen
+	const statistik = url.searchParams.has('statistik');
+	const k = statistik ? 'einsatz' : (url.searchParams.get('kategorie') as PostCategory | null);
 	const today = todayVienna();
 	return {
 		...(await postFormOptions()),
 		nummerVorschlag: await nextEinsatzNummer(today),
 		category: k && POST_CATEGORIES.includes(k) ? k : 'allgemein',
+		statistik,
 		today
 	};
 };
@@ -25,7 +28,10 @@ export const actions: Actions = {
 		const { input, error } = parsePostForm(await request.formData());
 		if (!input) return fail(400, { error });
 		const id = await savePost(null, input, me.id);
-		setFlash(cookies, input.status === 'veroeffentlicht' ? 'Beitrag veröffentlicht' : 'Entwurf gespeichert');
+		setFlash(
+			cookies,
+			input.status === 'veroeffentlicht' ? 'Beitrag veröffentlicht' : input.status === 'statistik' ? 'Einsatz für die Statistik gespeichert' : 'Entwurf gespeichert'
+		);
 		redirect(303, `/admin/beitraege/${id}`);
 	}
 };

@@ -146,6 +146,13 @@ export const vehicleImages = sqliteTable(
 
 export const POST_CATEGORIES = ['allgemein', 'einsatz', 'uebung', 'jugend'] as const;
 export type PostCategory = (typeof POST_CATEGORIES)[number];
+/**
+ * entwurf – nur im Admin sichtbar
+ * veroeffentlicht – öffentlich
+ * statistik – nur bei Einsätzen: kein öffentlicher Bericht, zählt aber in der Einsatzstatistik
+ */
+export const POST_STATUS = ['entwurf', 'veroeffentlicht', 'statistik'] as const;
+export type PostStatus = (typeof POST_STATUS)[number];
 
 export const posts = sqliteTable(
 	'posts',
@@ -158,7 +165,7 @@ export const posts = sqliteTable(
 		date: text('date').notNull(),
 		/** Uhrzeit (HH:MM) – bei Einsätzen die Alarmierung */
 		time: text('time'),
-		status: text('status', { enum: ['entwurf', 'veroeffentlicht'] })
+		status: text('status', { enum: POST_STATUS })
 			.notNull()
 			.default('entwurf'),
 		pinned: bool('pinned').notNull().default(false),

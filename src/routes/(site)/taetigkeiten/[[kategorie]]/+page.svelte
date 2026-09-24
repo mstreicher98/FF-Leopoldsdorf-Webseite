@@ -56,7 +56,7 @@
 		<section class="stats" aria-label="Einsatzstatistik {data.stats.year}">
 			<h2 class="stats-title">Einsatzstatistik {data.stats.year}</h2>
 			{#if data.stats.total}
-				<StatsBar stats={data.stats} note="Grundlage sind die veröffentlichten Einsatzberichte. Brandsicherheitswachen sind nicht mitgezählt." />
+				<StatsBar stats={data.stats} note="Gezählt werden alle Einsätze, auch solche ohne eigenen Bericht. Brandsicherheitswachen sind nicht mitgezählt." />
 			{:else}
 				<p class="empty">Für {data.stats.year} sind noch keine Einsätze eingetragen.</p>
 			{/if}

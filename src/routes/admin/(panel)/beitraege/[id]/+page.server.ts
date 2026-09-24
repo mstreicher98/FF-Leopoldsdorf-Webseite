@@ -70,14 +70,19 @@ export const actions: Actions = {
 		const { input, error: problem } = parsePostForm(await request.formData());
 		if (!input) return fail(400, { error: problem });
 		await savePost(post.id, input, me.id);
+		const wasOnline = post.status === 'veroeffentlicht';
 		const msg =
 			input.status === 'veroeffentlicht'
-				? post.status === 'veroeffentlicht'
+				? wasOnline
 					? 'Änderungen gespeichert'
 					: 'Beitrag veröffentlicht'
-				: post.status === 'veroeffentlicht'
-					? 'Beitrag ist jetzt offline'
-					: 'Entwurf gespeichert';
+				: input.status === 'statistik'
+					? wasOnline
+						? 'Bericht ist offline – der Einsatz zählt weiter in der Statistik'
+						: 'Einsatz für die Statistik gespeichert'
+					: wasOnline
+						? 'Beitrag ist jetzt offline'
+						: 'Entwurf gespeichert';
 		setFlash(cookies, msg);
 		redirect(303, `/admin/beitraege/${post.id}`);
 	},

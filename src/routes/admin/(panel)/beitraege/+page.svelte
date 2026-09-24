@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import ClipboardPlus from '@lucide/svelte/icons/clipboard-plus';
 	import Pin from '@lucide/svelte/icons/pin';
 	import Plus from '@lucide/svelte/icons/plus';
 	import Siren from '@lucide/svelte/icons/siren';
@@ -43,6 +44,7 @@
 	</div>
 	<div class="head-btns">
 		<a href="/admin/beitraege/neu?kategorie=einsatz" class="btn btn-primary"><Siren size={18} /> Einsatzbericht</a>
+		<a href="/admin/beitraege/neu?statistik=1" class="btn"><ClipboardPlus size={18} /> Einsatz ohne Bericht</a>
 		<a href="/admin/beitraege/neu" class="btn"><Plus size={18} /> Beitrag</a>
 	</div>
 </div>
@@ -57,6 +59,7 @@
 		<option value="">Alle</option>
 		<option value="veroeffentlicht">Veröffentlicht</option>
 		<option value="entwurf">Entwürfe</option>
+		<option value="statistik">Nur Statistik</option>
 	</select>
 	<select class="select" name="sortierung" value={data.filter.sort} onchange={filter} aria-label="Sortierung">
 		<option value="">Neueste zuerst</option>
@@ -100,6 +103,8 @@
 						</span>
 						{#if p.status === 'veroeffentlicht'}
 							<span class="badge badge-ok">Online</span>
+						{:else if p.status === 'statistik'}
+							<span class="badge badge-info">Statistik</span>
 						{:else}
 							<span class="badge badge-warn">Entwurf</span>
 						{/if}

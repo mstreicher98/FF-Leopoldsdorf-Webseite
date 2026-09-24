@@ -36,7 +36,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const conds: SQL[] = [];
 	if (q) conds.push(like(posts.title, `%${q}%`));
 	if (cat && POST_CATEGORIES.includes(cat)) conds.push(eq(posts.category, cat));
-	if (status === 'entwurf' || status === 'veroeffentlicht') conds.push(eq(posts.status, status));
+	if (status === 'entwurf' || status === 'veroeffentlicht' || status === 'statistik') conds.push(eq(posts.status, status));
 	const where = conds.length ? and(...conds) : undefined;
 
 	const cover = alias(media, 'cover');

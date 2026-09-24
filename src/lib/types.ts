@@ -20,7 +20,7 @@ export interface PostSummary {
 	time: string | null;
 	excerpt: string;
 	pinned: boolean;
-	status: 'entwurf' | 'veroeffentlicht';
+	status: 'entwurf' | 'veroeffentlicht' | 'statistik';
 	cover: MediaRef | null;
 	einsatz: EinsatzInfo | null;
 }

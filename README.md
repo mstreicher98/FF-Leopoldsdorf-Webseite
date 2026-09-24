@@ -9,7 +9,7 @@
 - Startseite mit Leitspruch, letztem Einsatz, angehefteten Hinweisen, aktuellen Beiträgen, Einsatzstatistik und den nächsten Terminen
 - Tätigkeiten: Einsätze, Übungen, Jugend, Allgemeines und Archiv, filterbar nach Jahr
 - Einsatzberichte mit Einsatzdaten (Nummer, Alarmzeit, Ort, Einsatzart B/T/S, eingesetzte Fahrzeuge)
-- Einsatzstatistik pro Jahr, berechnet aus den veröffentlichten Berichten (Brandsicherheitswachen zählen nicht)
+- Einsatzstatistik pro Jahr aus den veröffentlichten Berichten und den Einsätzen ohne Bericht (Brandsicherheitswachen zählen nicht)
 - Termine mit Kalender-Abo (`/termine.ics`) und Einzeltermin zum Speichern im Handy
 - Kommando, Mannschaft (mit Dienstgrad-Abzeichen) und Fuhrpark mit Fahrzeugseiten
 - Bürgerservice-Seiten, Impressum, Datenschutz – alles im Admin bearbeitbar (das Menü „Feuerwehr“ zeigt Kommando, Mannschaft und Fuhrpark)
@@ -22,6 +22,7 @@
 - Sperre nach mehreren Fehlversuchen
 - Rollen: **Admin** (alles) und **Redakteur** (Inhalte, keine Benutzer/Einstellungen)
 - Beiträge mit Texteditor, Titelbild und Galerie; Entwürfe mit Vorschau
+- „Einsatz ohne Bericht“: Einsätze nur mit Einsatzdaten erfassen – zählen in der Statistik, erscheinen aber nicht als Beitrag
 - Termine, Mitglieder (mit Datenschutz-Schaltern), Fahrzeuge, Textseiten, Einsatzarten
 - Mediathek: Handyfotos werden verkleinert, als WebP gespeichert, Standortdaten entfernt; PDF-Dokumente lassen sich hochladen und im Text verlinken
 - Dashboard mit Seitenaufrufen (ohne Cookies und ohne IP), Entwürfen, letzten Änderungen

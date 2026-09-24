@@ -71,7 +71,7 @@ type SummaryRow = {
 	summary: string;
 	contentHtml: string;
 	pinned: boolean;
-	status: 'entwurf' | 'veroeffentlicht';
+	status: 'entwurf' | 'veroeffentlicht' | 'statistik';
 	einsatzNummer: string | null;
 	stichwort: string | null;
 	einsatzort: string | null;

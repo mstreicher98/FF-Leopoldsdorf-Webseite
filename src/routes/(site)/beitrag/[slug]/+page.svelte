@@ -36,7 +36,9 @@
 			<a href="/taetigkeiten/{cat.path}">{cat.title}</a>
 		</nav>
 
-		{#if post.status !== 'veroeffentlicht'}
+		{#if post.status === 'statistik'}
+			<p class="draft">Nur Statistik: Dieser Einsatz hat keinen öffentlichen Bericht und ist nur für angemeldete Redakteure sichtbar.</p>
+		{:else if post.status !== 'veroeffentlicht'}
 			<p class="draft">Entwurf: Dieser Beitrag ist noch nicht veröffentlicht und nur für angemeldete Redakteure sichtbar.</p>
 		{/if}
 		{#if data.signedIn}

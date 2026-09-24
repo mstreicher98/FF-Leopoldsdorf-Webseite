@@ -9,7 +9,7 @@
 
 <a href="/admin/beitraege" class="back"><ArrowLeft size={16} /> Beiträge</a>
 <div class="page-head">
-	<h1 class="page-title">{data.category === 'einsatz' ? 'Neuer Einsatzbericht' : 'Neuer Beitrag'}</h1>
+	<h1 class="page-title">{data.statistik ? 'Einsatz ohne Bericht' : data.category === 'einsatz' ? 'Neuer Einsatzbericht' : 'Neuer Beitrag'}</h1>
 </div>
 
 <PostForm
@@ -20,7 +20,7 @@
 		category: data.category,
 		date: data.today,
 		time: '',
-		status: 'entwurf',
+		status: data.statistik ? 'statistik' : 'entwurf',
 		pinned: false,
 		summary: '',
 		contentHtml: '',
