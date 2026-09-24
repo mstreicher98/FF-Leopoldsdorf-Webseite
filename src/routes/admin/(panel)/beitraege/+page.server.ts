@@ -1,4 +1,4 @@
-import { and, desc, eq, like, sql, type SQL } from 'drizzle-orm';
+import { and, asc, desc, eq, like, sql, type SQL } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
 import { db } from '$lib/server/db';
 import { einsatzarten, media, POST_CATEGORIES, posts, type PostCategory } from '$lib/server/db/schema';
@@ -7,11 +7,27 @@ import type { PageServerLoad } from './$types';
 
 const PAGE_SIZE = 30;
 
+// Umlaute wie ihre Grundbuchstaben einsortieren ("Übung" bei U, nicht nach Z),
+// Zeichen wie # „ " … : vor dem ersten Wort nicht mitzählen
+const titleKey = sql`replace(replace(replace(replace(replace(replace(replace(ltrim(${posts.title}, '#„“"''«»…:.+*-– '), 'Ä', 'A'), 'Ö', 'O'), 'Ü', 'U'), 'ä', 'a'), 'ö', 'o'), 'ü', 'u'), 'ß', 'ss') COLLATE NOCASE`;
+
+/** ?sortierung=… – ohne Angabe: neueste zuerst */
+const SORTS = {
+	neueste: [desc(posts.date), desc(posts.id)],
+	aelteste: [asc(posts.date), asc(posts.id)],
+	bearbeitet: [desc(posts.updatedAt), desc(posts.id)],
+	angelegt: [desc(posts.createdAt), desc(posts.id)],
+	titel: [asc(titleKey), asc(posts.id)]
+} satisfies Record<string, SQL[]>;
+type Sort = keyof typeof SORTS;
+
 export const load: PageServerLoad = async ({ locals, url }) => {
 	requirePermission(locals, 'content.manage');
 	const q = (url.searchParams.get('suche') ?? '').trim().slice(0, 80);
 	const cat = url.searchParams.get('kategorie') as PostCategory | null;
 	const status = url.searchParams.get('status');
+	const sortParam = url.searchParams.get('sortierung') ?? '';
+	const sort: Sort = Object.hasOwn(SORTS, sortParam) ? (sortParam as Sort) : 'neueste';
 	const page = Math.max(1, Number(url.searchParams.get('seite')) || 1);
 
 	const conds: SQL[] = [];
@@ -36,17 +52,19 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 				code: einsatzarten.code,
 				group: einsatzarten.group,
 				coverFile: cover.file,
-				coverWidths: cover.widths
+				coverWidths: cover.widths,
+				createdAt: posts.createdAt,
+				updatedAt: posts.updatedAt
 			})
 			.from(posts)
 			.leftJoin(einsatzarten, eq(einsatzarten.id, posts.einsatzartId))
 			.leftJoin(cover, eq(cover.id, posts.coverMediaId))
 			.where(where)
-			.orderBy(desc(posts.date), desc(posts.id))
+			.orderBy(...SORTS[sort])
 			.limit(PAGE_SIZE)
 			.offset((page - 1) * PAGE_SIZE)
 			.all()
 	]);
 	const total = Number(totalRow?.n ?? 0);
-	return { items, total, page, pages: Math.max(1, Math.ceil(total / PAGE_SIZE)), filter: { q, cat: cat ?? '', status: status ?? '' } };
+	return { items, total, page, pages: Math.max(1, Math.ceil(total / PAGE_SIZE)), filter: { q, cat: cat ?? '', status: status ?? '', sort: sort === 'neueste' ? '' : sort } };
 };

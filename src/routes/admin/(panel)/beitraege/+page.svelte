@@ -7,7 +7,7 @@
 	import EinsatzChip from '$lib/components/site/EinsatzChip.svelte';
 	import Pagination from '$lib/components/site/Pagination.svelte';
 	import { CATEGORIES, CATEGORY_ORDER } from '$lib/categories';
-	import { formatDayShort } from '$lib/format';
+	import { formatDayShort, relativeTime } from '$lib/format';
 	import { mediaSrc } from '$lib/media';
 
 	let { data } = $props();
@@ -55,6 +55,13 @@
 		<option value="veroeffentlicht">Veröffentlicht</option>
 		<option value="entwurf">Entwürfe</option>
 	</select>
+	<select class="select" name="sortierung" value={data.filter.sort} onchange={filter} aria-label="Sortierung">
+		<option value="">Neueste zuerst</option>
+		<option value="aelteste">Älteste zuerst</option>
+		<option value="bearbeitet">Zuletzt bearbeitet</option>
+		<option value="angelegt">Zuletzt angelegt</option>
+		<option value="titel">Titel A–Z</option>
+	</select>
 </form>
 
 <div class="card">
@@ -79,6 +86,11 @@
 									<span>{CATEGORIES[p.category].label}</span>
 								{/if}
 								<span class="tabular">{formatDayShort(p.date)}</span>
+								{#if data.filter.sort === 'bearbeitet'}
+									<span>bearbeitet {relativeTime(p.updatedAt)}</span>
+								{:else if data.filter.sort === 'angelegt'}
+									<span>angelegt {relativeTime(p.createdAt)}</span>
+								{/if}
 							</span>
 						</span>
 						{#if p.status === 'veroeffentlicht'}
