@@ -70,3 +70,9 @@ export const formatNumber = (n: number) => new Intl.NumberFormat('de-AT').format
 
 /** Einsatzzeit "15:44" → "15:44 Uhr" */
 export const formatTime = (t: string | null | undefined) => (t ? `${t} Uhr` : '');
+
+/** Name einer Sicherung "2026-09-24-033255" → "24.09.2026, 03:32" (Serverzeit, wie beim Anlegen) */
+export function formatBackupName(name: string): string {
+	const m = name.match(/^(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})\d{2}$/);
+	return m ? `${m[3]}.${m[2]}.${m[1]}, ${m[4]}:${m[5]}` : name;
+}

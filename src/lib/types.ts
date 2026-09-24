@@ -66,3 +66,21 @@ export interface MenuPage {
 	menuText: string;
 	section: 'feuerwehr' | 'buergerservice' | 'rechtliches';
 }
+
+/** Überblick über eine Sicherung vor dem Wiederherstellen */
+export interface BackupSummary {
+	/** Zeitstempel aus dem Ordnernamen, z. B. "2026-09-24-033255" */
+	stamp: string | null;
+	posts: number;
+	members: number;
+	vehicles: number;
+	events: number;
+	/** Bilder und PDFs in der Mediathek */
+	media: number;
+	/** Bilddateien in der Sicherung (je Bild mehrere Größen) */
+	files: number;
+	users: string[];
+	lastPost: string | null;
+	/** Stammt die Sicherung von einer älteren Version? Dann wird sie beim Wiederherstellen angepasst. */
+	older: boolean;
+}

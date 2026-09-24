@@ -2,6 +2,8 @@
 	import { enhance } from '$app/forms';
 	import Download from '@lucide/svelte/icons/download';
 	import HardDrive from '@lucide/svelte/icons/hard-drive';
+	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+	import BackupRestore from '$lib/components/admin/BackupRestore.svelte';
 	import ImageField from '$lib/components/admin/ImageField.svelte';
 	import { formatBytes, formatStamp } from '$lib/format';
 	import { submitting } from '$lib/formEnhance';
@@ -13,6 +15,7 @@
 	let backupBusy = $state(false);
 	// svelte-ignore state_referenced_locally
 	let hero = $state<MediaRef | null>(data.hero);
+	let restore = $state<{ checkStand: (name: string) => Promise<void> }>();
 </script>
 
 <svelte:head><title>Einstellungen | FF Intern</title></svelte:head>
@@ -92,15 +95,21 @@
 						<td>{formatStamp(b.createdAt)}</td>
 						<td class="tabular">{formatBytes(b.dbSize)}</td>
 						<td class="tabular">{b.images}</td>
-						<td class="right"><a href="/admin/sicherung/{b.name}" class="btn btn-sm" download><Download size={15} /> Herunterladen</a></td>
+						<td>
+							<div class="actions">
+								<a href="/admin/sicherung/{b.name}" class="btn btn-sm" download><Download size={15} /> Herunterladen</a>
+								<button type="button" class="btn btn-sm btn-ghost" onclick={() => restore?.checkStand(b.name)}><RotateCcw size={15} /> Wiederherstellen</button>
+							</div>
+						</td>
 					</tr>
 				{/each}
 			</tbody>
 		</table>
-		<p class="hint">Tipp: Ab und zu eine Sicherung herunterladen und zusätzlich an einem anderen Ort aufbewahren. Die Wiederherstellung ist in der Anleitung (README) beschrieben.</p>
+		<p class="hint">Tipp: Ab und zu eine Sicherung herunterladen und zusätzlich an einem anderen Ort aufbewahren.</p>
 	{:else}
 		<p class="muted small">Noch keine Sicherung vorhanden.</p>
 	{/if}
+	<BackupRestore bind:this={restore} />
 </section>
 
 <style>
@@ -133,8 +142,11 @@
 		align-items: center;
 		gap: 0.4rem;
 	}
-	.right {
-		text-align: right;
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: 0.4rem;
 	}
 	.table {
 		margin-bottom: 0.75rem;

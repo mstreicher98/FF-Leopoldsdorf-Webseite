@@ -65,5 +65,10 @@ export async function saveSettings(patch: Partial<SiteSettings>) {
 	cache = next;
 }
 
+/** Nach dem Wiederherstellen einer Sicherung neu aus der Datenbank lesen */
+export function forgetSettings() {
+	cache = null;
+}
+
 /** "+43 2235 47202" → "tel:+43223547202" */
 export const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`;

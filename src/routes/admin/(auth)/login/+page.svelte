@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import PasswordInput from '$lib/components/admin/PasswordInput.svelte';
+	import { formatBackupName } from '$lib/format';
 
-	let { form } = $props();
+	let { data, form } = $props();
 	let busy = $state(false);
 </script>
 
@@ -21,6 +22,11 @@
 		};
 	}}
 >
+	{#if data.restored && !form}
+		<p class="alert alert-ok" role="status">
+			Sicherung wiederhergestellt. Bitte mit den Zugangsdaten aus der Sicherung anmelden. Der Stand davor liegt unter Einstellungen als Sicherung vom {formatBackupName(data.restored)}.
+		</p>
+	{/if}
 	{#if form?.error}<p class="alert alert-error" role="alert">{form.error}</p>{/if}
 	<label class="field">
 		<span class="label">Benutzername oder E-Mail</span>

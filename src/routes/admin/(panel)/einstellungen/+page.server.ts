@@ -1,7 +1,10 @@
 import fs from 'node:fs';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
+import { formatBackupName } from '$lib/format';
 import { logAction } from '$lib/server/audit';
+import { clearSessionCookie } from '$lib/server/auth';
 import { createBackup, listBackups } from '$lib/server/backup';
+import { RestoreError, restoreBackup } from '$lib/server/restore';
 import { mediaById } from '$lib/server/content';
 import { DB_FILE } from '$lib/server/db';
 import { intOrNull, requirePermission, str } from '$lib/server/guard';
@@ -58,5 +61,28 @@ export const actions: Actions = {
 		requirePermission(locals, 'settings.manage');
 		const name = await createBackup();
 		return { message: `Sicherung ${name} erstellt` };
+	},
+
+	/** quelle = "stand:<Name>" (Liste am Server) oder "upload:<id>" (hochgeladene Datei) */
+	wiederherstellen: async ({ locals, request, cookies }) => {
+		const me = requirePermission(locals, 'settings.manage');
+		const f = await request.formData();
+		if (f.get('bestaetigt') !== 'ja') return fail(400, { error: 'Bitte bestätigen, dass der aktuelle Stand ersetzt wird.' });
+		const quelle = str(f.get('quelle'), 80);
+		const source = quelle.startsWith('stand:') ? { backup: quelle.slice(6) } : quelle.startsWith('upload:') ? { upload: quelle.slice(7) } : null;
+		if (!source) return fail(400, { error: 'Unbekannte Sicherung.' });
+		let result: Awaited<ReturnType<typeof restoreBackup>>;
+		try {
+			result = await restoreBackup(source);
+		} catch (err) {
+			if (err instanceof RestoreError) return fail(400, { error: err.message });
+			console.error('[wiederherstellen]', err);
+			return fail(500, { error: 'Die Wiederherstellung ist fehlgeschlagen. Details stehen im Server-Log.' });
+		}
+		const from = result.summary.stamp ? `vom ${formatBackupName(result.summary.stamp)}` : 'aus einer hochgeladenen Datei';
+		await logAction(null, 'geändert', 'einstellungen', null, `Sicherung ${from} wiederhergestellt durch ${me.name}`);
+		// Alle Anmeldungen sind mit dem alten Stand verschwunden
+		clearSessionCookie(cookies);
+		redirect(303, `/admin/login?wiederhergestellt=${encodeURIComponent(result.safety)}`);
 	}
 };

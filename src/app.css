@@ -324,7 +324,10 @@
 }
 .prose img {
 	border-radius: 10px;
+	/* Hochformat nie höher als der Bildschirm, Seitenverhältnis bleibt */
+	width: auto;
 	height: auto;
+	max-height: min(48rem, 85svh);
 }
 .prose > :first-child {
 	margin-top: 0;

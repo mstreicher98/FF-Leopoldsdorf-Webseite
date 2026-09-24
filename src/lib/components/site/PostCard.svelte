@@ -3,7 +3,7 @@
 	import { formatDay } from '$lib/format';
 	import type { PostSummary } from '$lib/types';
 	import EinsatzChip from './EinsatzChip.svelte';
-	import Picture from './Picture.svelte';
+	import FramedPicture from './FramedPicture.svelte';
 
 	interface Props {
 		post: PostSummary;
@@ -21,7 +21,7 @@
 <article class="card {variant}">
 	<div class="media">
 		{#if post.cover}
-			<Picture media={post.cover} {sizes} class="img" want={variant === 'feature' ? 1600 : 800} />
+			<FramedPicture media={post.cover} {sizes} want={variant === 'feature' ? 1600 : 800} />
 		{:else}
 			<img src={cat.banner} alt="" class="img fallback" loading="lazy" />
 		{/if}
@@ -62,12 +62,16 @@
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+	}
+	.media :global(.img),
+	.media :global(.pic) {
 		transition: transform 400ms var(--ease-out);
 	}
 	.media :global(.fallback) {
 		filter: grayscale(0.6) brightness(0.8);
 	}
-	.card:hover .media :global(.img) {
+	.card:hover .media :global(.img),
+	.card:hover .media :global(.pic) {
 		transform: scale(1.03);
 	}
 	.body {

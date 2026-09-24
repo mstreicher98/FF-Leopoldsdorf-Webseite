@@ -19,7 +19,7 @@ export type Tx = Parameters<Parameters<DB['transaction']>[0]>[0];
 
 let ready: Promise<void> | null = null;
 
-function migrationsPath(): string {
+export function migrationsPath(): string {
 	const candidates = [path.resolve('drizzle'), path.resolve(process.cwd(), 'drizzle')];
 	for (const c of candidates) if (fs.existsSync(path.join(c, 'meta', '_journal.json'))) return c;
 	throw new Error('Migrationsordner "drizzle" nicht gefunden');

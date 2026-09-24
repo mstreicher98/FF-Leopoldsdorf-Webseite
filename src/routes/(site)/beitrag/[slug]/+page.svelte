@@ -2,8 +2,8 @@
 	import { page } from '$app/state';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import EinsatzChip from '$lib/components/site/EinsatzChip.svelte';
+	import FramedPicture from '$lib/components/site/FramedPicture.svelte';
 	import Gallery from '$lib/components/site/Gallery.svelte';
-	import Picture from '$lib/components/site/Picture.svelte';
 	import PostCard from '$lib/components/site/PostCard.svelte';
 	import Seo from '$lib/components/site/Seo.svelte';
 	import ShareLinks from '$lib/components/site/ShareLinks.svelte';
@@ -18,6 +18,12 @@
 	const cat = $derived(CATEGORIES[post.category]);
 	const e = $derived(post.einsatz);
 	const url = $derived(`${page.url.origin}/beitrag/${post.slug}`);
+
+	// Großansicht blättert vom Titelbild durch alle Bilder
+	const cover = $derived(post.cover);
+	const lightbox = $derived(cover ? [cover, ...post.gallery.filter((g) => g.id !== cover.id)] : post.gallery);
+	const skip = $derived(cover ? 1 : 0);
+	let gallery: { openAt: (i: number) => void } | undefined = $state();
 </script>
 
 <Seo title={post.title} description={post.excerpt} image={post.cover ? mediaSrc(post.cover, 1600) : undefined} type="article" noindex={post.status !== 'veroeffentlicht'} />
@@ -95,10 +101,12 @@
 		</section>
 	{/if}
 
-	{#if post.cover}
+	{#if cover}
 		<figure class="wrap cover">
-			<Picture media={post.cover} sizes="(min-width: 1216px) 1152px, 100vw" want={1600} eager class="cover-img" />
-			{#if post.cover.alt}<figcaption>{post.cover.alt}</figcaption>{/if}
+			<button type="button" class="cover-btn" style:--r={cover.width && cover.height ? cover.width / cover.height : 1.5} onclick={() => gallery?.openAt(0)} aria-label="Titelbild vergrößern">
+				<FramedPicture media={cover} sizes="(min-width: 1216px) 1152px, 100vw" want={1600} eager />
+			</button>
+			{#if cover.alt}<figcaption>{cover.alt}</figcaption>{/if}
 		</figure>
 	{/if}
 
@@ -107,10 +115,10 @@
 			<div class="prose">{@html post.contentHtml}</div>
 		{/if}
 
-		{#if post.gallery.length}
-			<section class="gallery" aria-label="Bilder zum Beitrag">
-				<h2 class="h2">Bilder</h2>
-				<Gallery images={post.gallery} />
+		{#if lightbox.length}
+			<section class="gallery" class:only-cover={lightbox.length === skip} aria-label="Bilder zum Beitrag">
+				{#if lightbox.length > skip}<h2 class="h2">Bilder</h2>{/if}
+				<Gallery bind:this={gallery} images={lightbox} {skip} />
 			</section>
 		{/if}
 
@@ -280,11 +288,16 @@
 	.cover {
 		margin-top: 2rem;
 	}
-	.cover :global(.cover-img) {
+	/* Rahmen im Format des Bildes, aber nie höher als der Bildschirm:
+	   Hochformat erscheint dann ganz, vor einer unscharfen Fassung desselben Fotos */
+	.cover-btn {
+		display: block;
 		width: 100%;
-		max-height: 44rem;
-		object-fit: cover;
+		aspect-ratio: var(--r);
+		max-height: min(44rem, 80svh);
+		overflow: hidden;
 		border-radius: 12px;
+		cursor: zoom-in;
 	}
 	figcaption {
 		margin-top: 0.5rem;
@@ -303,6 +316,10 @@
 	}
 	.gallery {
 		margin-top: 3rem;
+	}
+	/* nur die Großansicht des Titelbilds, keine Vorschaubilder */
+	.gallery.only-cover {
+		margin-top: 0;
 	}
 	.share {
 		margin-top: 3rem;

@@ -10,6 +10,7 @@ import {
 	setSessionCookie,
 	verifyPassword
 } from '$lib/server/auth';
+import { BACKUP_NAME_RE } from '$lib/server/backup';
 import { db } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
 import { checked, safeNext, str } from '$lib/server/guard';
@@ -17,7 +18,9 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (locals.user?.totpEnabled && !locals.user.mustChangePassword) redirect(303, safeNext(url.searchParams.get('weiter')));
-	return { weiter: url.searchParams.get('weiter') ?? '' };
+	// nach dem Wiederherstellen einer Sicherung: Name der Sicherung vom Stand davor
+	const restored = url.searchParams.get('wiederhergestellt');
+	return { weiter: url.searchParams.get('weiter') ?? '', restored: restored && BACKUP_NAME_RE.test(restored) ? restored : null };
 };
 
 export const actions: Actions = {

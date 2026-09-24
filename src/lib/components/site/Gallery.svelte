@@ -5,15 +5,25 @@
 	import { mediaSrc, mediaSrcset, type MediaRef } from '$lib/media';
 	import Picture from './Picture.svelte';
 
-	let { images, label = 'Bilder' }: { images: MediaRef[]; label?: string } = $props();
+	interface Props {
+		images: MediaRef[];
+		label?: string;
+		/** So viele Bilder am Anfang nur in der Großansicht, ohne Vorschau (z. B. das Titelbild) */
+		skip?: number;
+	}
+
+	let { images, label = 'Bilder', skip = 0 }: Props = $props();
 
 	let dialog: HTMLDialogElement;
 	let index = $state(0);
 	let startX = 0;
 
 	const current = $derived(images[index]);
+	const thumbs = $derived(images.slice(skip));
+	// Seitenverhältnis für die Zeilen; extreme Formate leicht beschnitten
+	const ratio = (m: MediaRef) => Math.min(2.2, Math.max(0.6, m.width && m.height ? m.width / m.height : 1.5));
 
-	function openAt(i: number) {
+	export function openAt(i: number) {
 		index = i;
 		dialog.showModal();
 	}
@@ -36,15 +46,18 @@
 	}
 </script>
 
-<ul class="grid" aria-label={label}>
-	{#each images as img, i (img.id)}
-		<li>
-			<button type="button" class="thumb" onclick={() => openAt(i)} aria-label="Bild {i + 1} von {images.length} vergrößern">
-				<Picture media={img} sizes="(min-width: 1024px) 260px, (min-width: 640px) 33vw, 50vw" want={400} class="img" />
-			</button>
-		</li>
-	{/each}
-</ul>
+{#if thumbs.length}
+	<!-- Bilder in Zeilen gleicher Höhe, jedes im eigenen Format (Hochformat bleibt Hochformat) -->
+	<ul class="grid" aria-label={label}>
+		{#each thumbs as img, i (img.id)}
+			<li style:--r={ratio(img)}>
+				<button type="button" class="thumb" onclick={() => openAt(i + skip)} aria-label="Bild {i + skip + 1} von {images.length} vergrößern">
+					<Picture media={img} sizes="(min-width: 1024px) 420px, (min-width: 640px) 40vw, 60vw" want={400} class="img" />
+				</button>
+			</li>
+		{/each}
+	</ul>
+{/if}
 
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <dialog bind:this={dialog} class="lightbox" aria-label="Bildansicht" onkeydown={onKey} onclick={onBackdrop}>
@@ -65,25 +78,36 @@
 </dialog>
 
 <style>
+	/* Blocksatz-Galerie: Breite wächst mit dem Seitenverhältnis, so bleibt die Zeilenhöhe gleich */
 	.grid {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+		--h: 6.5rem;
+		display: flex;
+		flex-wrap: wrap;
 		gap: 0.5rem;
+	}
+	/* hält die letzte Zeile in normaler Höhe statt sie auf volle Breite zu ziehen */
+	.grid::after {
+		content: '';
+		flex: 999 1 0;
 	}
 	@media (min-width: 640px) {
 		.grid {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
+			--h: 11rem;
 		}
 	}
 	@media (min-width: 1024px) {
 		.grid {
-			grid-template-columns: repeat(4, minmax(0, 1fr));
+			--h: 13rem;
 		}
+	}
+	li {
+		flex: var(--r) 1 calc(var(--r) * var(--h));
+		min-width: 0;
 	}
 	.thumb {
 		display: block;
 		width: 100%;
-		aspect-ratio: 1;
+		aspect-ratio: var(--r);
 		overflow: hidden;
 		border-radius: 8px;
 		background: var(--c-surface-3);

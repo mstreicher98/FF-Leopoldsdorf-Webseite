@@ -48,7 +48,8 @@ function stamp(d = new Date()) {
 	return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
 }
 
-export async function createBackup(): Promise<string> {
+/** `prune: false` behält alle älteren Stände – z. B. für die Sicherung vor einer Wiederherstellung */
+export async function createBackup({ prune = true } = {}): Promise<string> {
 	let name = stamp();
 	while (fs.existsSync(path.join(BACKUP_DIR, name))) {
 		await new Promise((r) => setTimeout(r, 1000));
@@ -68,8 +69,10 @@ export async function createBackup(): Promise<string> {
 			fs.copyFileSync(src, dest);
 		}
 	}
-	for (const old of listBackups().slice(KEEP)) {
-		fs.rmSync(path.join(BACKUP_DIR, old.name), { recursive: true, force: true });
+	if (prune) {
+		for (const old of listBackups().slice(KEEP)) {
+			fs.rmSync(path.join(BACKUP_DIR, old.name), { recursive: true, force: true });
+		}
 	}
 	return name;
 }
