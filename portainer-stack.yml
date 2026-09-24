@@ -1,0 +1,50 @@
+# Webseite der Freiwilligen Feuerwehr Leopoldsdorf – Stack für Portainer mit Cloudflare Tunnel
+#
+# Portainer → Stacks → Add stack → Web editor: diesen Inhalt einfügen, darunter bei
+# „Environment variables“ setzen:
+#   DOMAIN                  Adresse der Seite ohne https://, genau wie im Tunnel eingetragen
+#   INITIAL_ADMIN_USERNAME  optional, Standard „admin“
+#   INITIAL_ADMIN_PASSWORD  optional – leer lassen: wird erzeugt und einmalig im Log des Containers angezeigt
+#   APP_PORT                optional, Port am Server (Standard 3000)
+#   TUNNEL_TOKEN            nur für Variante B
+#
+# HTTPS übernimmt Cloudflare. Im Cloudflare-Dashboard unter Zero Trust → Networks → Tunnels
+# → Public Hostname die Domain auf die Webseite zeigen lassen (Typ HTTP):
+#   Variante A – cloudflared läuft schon am Server:  <IP des Servers>:3000
+#   Variante B – cloudflared aus diesem Stack (unten einkommentieren):  app:3000
+#
+# Neue Version einspielen: Stack → Editor → „Update the stack“ mit „Re-pull image and redeploy“.
+
+services:
+  app:
+    image: ghcr.io/mstreicher98/ff-leopoldsdorf-webseite:latest
+    restart: unless-stopped
+    environment:
+      ORIGIN: https://${DOMAIN}
+      # Echte Besucher-IP schickt Cloudflare in diesem Header mit (Sperre bei falschen Passwörtern)
+      ADDRESS_HEADER: CF-Connecting-IP
+      INITIAL_ADMIN_USERNAME: ${INITIAL_ADMIN_USERNAME:-admin}
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
+    volumes:
+      # Datenbank, Bilder und Sicherungen. Beim Entfernen des Stacks das Volume NICHT mitlöschen.
+      - ff-data:/data
+    # Für Variante A: cloudflared erreicht die Seite über diesen Port.
+    # Den Port im Router nicht nach außen freigeben – der Zugang läuft nur über den Tunnel.
+    ports:
+      - '${APP_PORT:-3000}:3000'
+
+  # Variante B: Tunnel direkt in diesem Stack. Zum Aktivieren die Zeilen unten einkommentieren
+  # und TUNNEL_TOKEN setzen (Zero Trust → Networks → Tunnels → Tunnel anlegen → Token kopieren).
+  # Die Zeilen „ports“ oben können dann entfallen.
+  #
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   restart: unless-stopped
+  #   command: tunnel --no-autoupdate run
+  #   environment:
+  #     TUNNEL_TOKEN: ${TUNNEL_TOKEN}
+  #   depends_on:
+  #     - app
+
+volumes:
+  ff-data:
