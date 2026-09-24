@@ -56,7 +56,8 @@
 			<h2 class="h2">Technische Daten</h2>
 			<dl>
 				{#each specs as [label, value] (label)}
-					<div class="row">
+					<!-- lange Angaben (z. B. Beladung) untereinander statt in zwei schmalen Spalten -->
+					<div class="row" class:long={label.length > 16 || value.length > 60}>
 						<dt>{label}</dt>
 						<dd>{value}</dd>
 					</div>
@@ -125,7 +126,7 @@
 	}
 	@media (min-width: 1024px) {
 		.layout {
-			grid-template-columns: 1fr 22rem;
+			grid-template-columns: minmax(0, 1fr) 22rem;
 			gap: 3.5rem;
 			align-items: start;
 		}
@@ -153,12 +154,22 @@
 		background: var(--c-surface-2);
 		border: 1px solid var(--c-line);
 	}
+	/* minmax(0, …): lange Wörter wie „Schaumdruckzumischsystem“ dürfen die Spalten nicht sprengen */
 	.row {
 		display: grid;
-		grid-template-columns: 8.5rem 1fr;
+		grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr);
 		gap: 0.75rem;
 		padding: 0.6rem 0;
 		border-top: 1px solid var(--c-line);
+	}
+	.row.long {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.3rem;
+	}
+	dt,
+	dd {
+		overflow-wrap: break-word;
+		hyphens: auto;
 	}
 	.row:first-child {
 		border-top: 0;
