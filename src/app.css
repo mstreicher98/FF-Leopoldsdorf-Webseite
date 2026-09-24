@@ -1,0 +1,349 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/archivo/wdth.css';
+
+/* Dark Mode nur im Admin: folgt dem Attribut, ohne Attribut dem System */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ------------------------------------------------------------ Tokens
+   Feuerrot RAL 3000 (Fahrzeuglack), Uniform-Nachtblau für Schrift,
+   Asphaltgrau für Flächen. Einsatzarten: Brand rot, Technik blau,
+   Schadstoff im Orange der Gefahrgut-Warntafel. */
+:root {
+	color-scheme: light;
+	--c-red: #af2b1e;
+	--c-red-deep: #8c2117;
+	--c-red-soft: #f9e9e6;
+	--c-night: #1d2b3a;
+	--c-night-2: #2b3d51;
+	--c-bg: #ffffff;
+	--c-surface: #ffffff;
+	--c-surface-2: #f5f6f8;
+	--c-surface-3: #eef0f2;
+	--c-line: #dde1e6;
+	--c-line-strong: #c4cad2;
+	--c-ink: #1d2b3a;
+	--c-ink-2: #46546a;
+	--c-ink-3: #66727f;
+	--c-gold: #e3b221;
+	--c-brand: #af2b1e;
+	--c-technik: #1f5fa8;
+	--c-schadstoff: #f28c00;
+	--c-sonstiges: #7a5aa6;
+	--c-ok: #13784a;
+	--c-ok-soft: #e3f3ea;
+	--c-warn: #9a5400;
+	--c-warn-soft: #fdf0dc;
+	--c-danger: #b3261e;
+	--c-danger-soft: #fbe8e6;
+	--c-info: #1f5fa8;
+	--c-info-soft: #e6eef8;
+	--c-focus: #1f5fa8;
+	--c-scrim: rgb(16 24 33 / 0.5);
+	--shadow-1: 0 1px 2px rgb(29 43 58 / 0.06), 0 0 0 1px rgb(29 43 58 / 0.04);
+	--shadow-2: 0 10px 30px -12px rgb(29 43 58 / 0.25), 0 2px 6px rgb(29 43 58 / 0.06);
+	--shadow-3: 0 30px 70px -20px rgb(16 24 33 / 0.45), 0 4px 12px rgb(16 24 33 / 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) {
+		color-scheme: dark;
+		--c-red: #e0574a;
+		--c-red-deep: #f07a6e;
+		--c-red-soft: rgb(224 87 74 / 0.14);
+		--c-brand: #e0574a;
+		--c-technik: #5b93d6;
+		--c-schadstoff: #d97706;
+		--c-sonstiges: #9b7cc8;
+		--c-bg: #11171e;
+		--c-surface: #18202a;
+		--c-surface-2: #1d2631;
+		--c-surface-3: #26303c;
+		--c-line: #2c3643;
+		--c-line-strong: #3d4958;
+		--c-ink: #e9edf2;
+		--c-ink-2: #b4bdc8;
+		--c-ink-3: #8f99a5;
+		--c-ok: #5bc893;
+		--c-ok-soft: rgb(91 200 147 / 0.13);
+		--c-warn: #f1ac55;
+		--c-warn-soft: rgb(241 172 85 / 0.13);
+		--c-danger: #f28b82;
+		--c-danger-soft: rgb(242 139 130 / 0.13);
+		--c-info: #8ab8f0;
+		--c-info-soft: rgb(138 184 240 / 0.13);
+		--c-focus: #8ab8f0;
+		--c-scrim: rgb(0 0 0 / 0.6);
+		--shadow-1: 0 0 0 1px rgb(255 255 255 / 0.03);
+		--shadow-2: 0 10px 30px -10px rgb(0 0 0 / 0.6);
+		--shadow-3: 0 30px 70px -20px rgb(0 0 0 / 0.75);
+	}
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--c-red: #e0574a;
+	--c-red-deep: #f07a6e;
+	--c-red-soft: rgb(224 87 74 / 0.14);
+	--c-brand: #e0574a;
+	--c-technik: #5b93d6;
+	--c-schadstoff: #d97706;
+	--c-sonstiges: #9b7cc8;
+	--c-bg: #11171e;
+	--c-surface: #18202a;
+	--c-surface-2: #1d2631;
+	--c-surface-3: #26303c;
+	--c-line: #2c3643;
+	--c-line-strong: #3d4958;
+	--c-ink: #e9edf2;
+	--c-ink-2: #b4bdc8;
+	--c-ink-3: #8f99a5;
+	--c-ok: #5bc893;
+	--c-ok-soft: rgb(91 200 147 / 0.13);
+	--c-warn: #f1ac55;
+	--c-warn-soft: rgb(241 172 85 / 0.13);
+	--c-danger: #f28b82;
+	--c-danger-soft: rgb(242 139 130 / 0.13);
+	--c-info: #8ab8f0;
+	--c-info-soft: rgb(138 184 240 / 0.13);
+	--c-focus: #8ab8f0;
+	--c-scrim: rgb(0 0 0 / 0.6);
+	--shadow-1: 0 0 0 1px rgb(255 255 255 / 0.03);
+	--shadow-2: 0 10px 30px -10px rgb(0 0 0 / 0.6);
+	--shadow-3: 0 30px 70px -20px rgb(0 0 0 / 0.75);
+}
+
+@theme {
+	--font-sans: 'Archivo Variable', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+
+	--color-red: var(--c-red);
+	--color-red-deep: var(--c-red-deep);
+	--color-red-soft: var(--c-red-soft);
+	--color-night: var(--c-night);
+	--color-night-2: var(--c-night-2);
+	--color-bg: var(--c-bg);
+	--color-surface: var(--c-surface);
+	--color-surface-2: var(--c-surface-2);
+	--color-surface-3: var(--c-surface-3);
+	--color-line: var(--c-line);
+	--color-line-strong: var(--c-line-strong);
+	--color-ink: var(--c-ink);
+	--color-ink-2: var(--c-ink-2);
+	--color-ink-3: var(--c-ink-3);
+	--color-gold: var(--c-gold);
+	--color-brand: var(--c-brand);
+	--color-technik: var(--c-technik);
+	--color-schadstoff: var(--c-schadstoff);
+	--color-sonstiges: var(--c-sonstiges);
+	--color-ok: var(--c-ok);
+	--color-ok-soft: var(--c-ok-soft);
+	--color-warn: var(--c-warn);
+	--color-warn-soft: var(--c-warn-soft);
+	--color-danger: var(--c-danger);
+	--color-danger-soft: var(--c-danger-soft);
+	--color-info: var(--c-info);
+	--color-info-soft: var(--c-info-soft);
+
+	--radius-card: 14px;
+	--radius-field: 9px;
+
+	--ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+	--ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+
+	--shadow-card: var(--shadow-1);
+	--shadow-pop: var(--shadow-2);
+	--shadow-modal: var(--shadow-3);
+}
+
+/* ------------------------------------------------------------ Basis */
+
+@layer base {
+	html {
+		-webkit-text-size-adjust: 100%;
+		text-rendering: optimizeLegibility;
+		scroll-padding-top: 5rem;
+	}
+	body {
+		background: var(--c-bg);
+		color: var(--c-ink);
+		font-family: var(--font-sans);
+		font-size: 1rem;
+		line-height: 1.6;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+	:focus-visible {
+		outline: 2.5px solid var(--c-focus);
+		outline-offset: 2px;
+		border-radius: 4px;
+	}
+	::selection {
+		background: var(--c-red);
+		color: #fff;
+	}
+	button,
+	[role='button'] {
+		cursor: pointer;
+	}
+	button:disabled {
+		cursor: not-allowed;
+	}
+	img {
+		max-width: 100%;
+	}
+}
+
+/* Überschriften im Stil des Schriftzugs auf Logo und Fahrzeugen:
+   stark verengt, fett. Nur für echte Titel, nicht für kleine Beschriftungen. */
+@utility display {
+	font-stretch: 68%;
+	font-weight: 800;
+	line-height: 0.92;
+	letter-spacing: -0.005em;
+	text-wrap: balance;
+}
+@utility condensed {
+	font-stretch: 80%;
+}
+@utility tabular {
+	font-variant-numeric: tabular-nums;
+}
+@utility wrap {
+	width: 100%;
+	max-width: 76rem;
+	margin-inline: auto;
+	padding-inline: 1rem;
+	@media (min-width: 640px) {
+		padding-inline: 1.5rem;
+	}
+	@media (min-width: 1024px) {
+		padding-inline: 2rem;
+	}
+}
+
+/* Rot-weiße Warnmarkierung wie am Heck der Löschfahrzeuge */
+@utility warnstripe {
+	background-image: repeating-linear-gradient(-45deg, var(--c-red) 0 14px, #fff 14px 28px);
+}
+
+/* ------------------------------------------------------------ Fließtext aus dem Editor */
+
+.prose {
+	--prose-gap: 1.05em;
+	font-size: 1.0625rem;
+	line-height: 1.7;
+	color: var(--c-ink);
+	max-width: 68ch;
+}
+.prose > * + * {
+	margin-top: var(--prose-gap);
+}
+.prose h2 {
+	margin-top: 2em;
+	font-size: 1.6rem;
+	line-height: 1.15;
+	font-weight: 750;
+	font-stretch: 78%;
+}
+.prose h3 {
+	margin-top: 1.6em;
+	font-size: 1.25rem;
+	line-height: 1.25;
+	font-weight: 700;
+	font-stretch: 85%;
+}
+.prose h4 {
+	margin-top: 1.4em;
+	font-size: 1.05rem;
+	font-weight: 700;
+}
+.prose h2 + *,
+.prose h3 + *,
+.prose h4 + * {
+	margin-top: 0.5em;
+}
+.prose strong {
+	font-weight: 650;
+}
+.prose a {
+	color: var(--c-red);
+	font-weight: 550;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 3px;
+}
+.prose a:hover {
+	text-decoration-thickness: 2px;
+}
+/* Verlinkte Dokumente als solche erkennbar machen */
+.prose a[href$='.pdf']::after {
+	content: ' (PDF)';
+	font-size: 0.85em;
+	font-weight: 500;
+	color: var(--c-ink-3);
+}
+.prose ul,
+.prose ol {
+	padding-left: 1.3em;
+}
+.prose ul {
+	list-style: none;
+}
+.prose ul > li {
+	position: relative;
+}
+.prose ul > li::before {
+	content: '';
+	position: absolute;
+	left: -1.05em;
+	top: 0.72em;
+	width: 0.45em;
+	height: 0.45em;
+	background: var(--c-red);
+	transform: rotate(45deg);
+}
+.prose ol {
+	list-style: decimal;
+}
+.prose ol > li::marker {
+	color: var(--c-ink-3);
+	font-weight: 600;
+}
+.prose li + li {
+	margin-top: 0.35em;
+}
+.prose blockquote {
+	border-left: 3px solid var(--c-red);
+	padding-left: 1em;
+	color: var(--c-ink-2);
+	font-style: italic;
+}
+.prose hr {
+	border: 0;
+	border-top: 1px solid var(--c-line);
+	margin-block: 2em;
+}
+.prose img {
+	border-radius: 10px;
+	height: auto;
+}
+.prose > :first-child {
+	margin-top: 0;
+}
+
+/* ------------------------------------------------------------ Bewegung */
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 180ms;
+}

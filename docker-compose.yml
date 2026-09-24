@@ -1,0 +1,45 @@
+# Webseite der Freiwilligen Feuerwehr Leopoldsdorf
+#
+# Start/Update:  docker compose pull && docker compose up -d
+# Selbst bauen:  docker compose up -d --build
+# Logs:          docker compose logs -f app
+services:
+  app:
+    # Fertiges Image aus GitHub (siehe .github/workflows/docker.yml)
+    image: ${APP_IMAGE:-ghcr.io/mstreicher98/ff-leopoldsdorf-webseite:latest}
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      ORIGIN: https://${DOMAIN}
+      # echte Besucher-IP hinter Caddy (für die Sperre bei falschen Passwörtern)
+      ADDRESS_HEADER: X-Forwarded-For
+      XFF_DEPTH: '1'
+      # größte erlaubte Anfrage (Bild-Upload)
+      BODY_SIZE_LIMIT: 30M
+    volumes:
+      - ff-data:/data
+    expose:
+      - '3000'
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  # Datenbank, Bilder und Sicherungen – NICHT löschen
+  ff-data:
+  caddy-data:
+  caddy-config:

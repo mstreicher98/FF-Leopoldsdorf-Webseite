@@ -1,0 +1,111 @@
+name: Prüfen, bauen und ausrollen
+
+# Ablauf bei jedem Push auf main:
+#   1. Typprüfung und Tests
+#   2. Docker-Image bauen und nach GitHub Container Registry (ghcr.io) schieben
+#   3. Falls Server-Zugangsdaten hinterlegt sind: per SSH aktualisieren
+#
+# Für Schritt 3 unter Settings → Secrets and variables → Actions anlegen:
+#   DEPLOY_HOST     IP oder Name des Servers
+#   DEPLOY_USER     Benutzer am Server (z. B. deploy)
+#   DEPLOY_SSH_KEY  privater SSH-Schlüssel (der öffentliche liegt am Server in ~/.ssh/authorized_keys)
+#   DEPLOY_PATH     optional, Ordner mit docker-compose.yml (Standard: /opt/ff-leopoldsdorf)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pruefen:
+    name: Typprüfung und Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+
+  image:
+    name: Image bauen
+    needs: pruefen
+    # Bei Pull Requests nur prüfen, nicht veröffentlichen
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+
+      # GHCR verlangt Kleinbuchstaben im Image-Namen
+      - name: Image-Name bestimmen
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=short
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          # arm64 zusätzlich, damit das Image auch auf ARM-Servern und Raspberry Pi läuft
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Ergebnis
+        run: echo "Image -> ${{ env.IMAGE }}:latest" >> "$GITHUB_STEP_SUMMARY"
+
+  ausrollen:
+    name: Server aktualisieren
+    needs: image
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      # Secrets lassen sich in Bedingungen nicht direkt abfragen
+      HAT_SERVER: ${{ secrets.DEPLOY_HOST != '' }}
+    steps:
+      - name: Kein Server hinterlegt
+        if: env.HAT_SERVER != 'true'
+        run: echo "Keine DEPLOY_*-Secrets hinterlegt – Image ist gebaut, der Server wird nicht automatisch aktualisiert." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Per SSH aktualisieren
+        if: env.HAT_SERVER == 'true'
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd "${{ secrets.DEPLOY_PATH || '/opt/ff-leopoldsdorf' }}"
+            docker compose pull app
+            docker compose up -d
+            docker image prune -f

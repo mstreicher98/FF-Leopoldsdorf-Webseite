@@ -1,0 +1,20 @@
+# Caddy holt und erneuert das HTTPS-Zertifikat (Let's Encrypt) automatisch.
+# Voraussetzung: Der DNS-Eintrag der Domain zeigt auf diesen Server, Ports 80/443 sind offen.
+# Caddy schreibt standardmäßig keine Zugriffsprotokolle (keine IP-Adressen auf der Platte).
+{$DOMAIN} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+	request_body {
+		max_size 32MB
+	}
+	reverse_proxy app:3000
+}
+
+# www. auf die Hauptadresse umleiten – erst einkommentieren, wenn es auch für
+# www.<domain> einen DNS-Eintrag gibt, sonst versucht Caddy vergeblich ein Zertifikat zu holen.
+# www.{$DOMAIN} {
+# 	redir https://{$DOMAIN}{uri} permanent
+# }

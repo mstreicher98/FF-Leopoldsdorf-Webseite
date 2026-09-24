@@ -1,0 +1,14 @@
+# Einmal pro Monat nach Updates schauen – als Pull Request, nichts wird automatisch übernommen
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      alle:
+        patterns: ['*']
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
