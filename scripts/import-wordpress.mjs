@@ -53,6 +53,7 @@ const DIENSTGRADE = new Set(
 const CAT_EINSATZ = [13, 80];
 const CAT_UEBUNG = [14];
 const CAT_JUGEND = [17];
+const CAT_VERANSTALTUNG = [83];
 const CAT_INTERN = 99;
 const CAT_BUERGERSERVICE = 85;
 const CAT_FAHRZEUGE = [7, 21];
@@ -700,6 +701,8 @@ async function main() {
 		let category = 'allgemein';
 		if (inCat(p, CAT_EINSATZ)) category = 'einsatz';
 		else if (inCat(p, CAT_UEBUNG)) category = 'uebung';
+		// vor Jugend: auf der Seite „Veranstaltungen“ stehen auch Jugend-Bewerbe, die wir ausgerichtet haben
+		else if (inCat(p, CAT_VERANSTALTUNG)) category = 'veranstaltung';
 		else if (inCat(p, CAT_JUGEND)) category = 'jugend';
 		else if (p.categories.includes(CAT_BUERGERSERVICE)) category = 'allgemein';
 		let newSlug = slugify(slug) || slugify(decodeEntities(p.title.rendered)) || `beitrag-${p.id}`;
@@ -738,7 +741,7 @@ async function main() {
 		'/category/uebungen': '/taetigkeiten/uebungen',
 		'/category/feuerwehrjugend': '/taetigkeiten/jugend',
 		'/category/allgemein': '/taetigkeiten/allgemeines',
-		'/category/veranstaltungen': '/taetigkeiten/allgemeines',
+		'/category/veranstaltungen': '/taetigkeiten/veranstaltungen',
 		'/category/fahrzeuge': '/feuerwehr/fuhrpark',
 		'/category/publikationen': '/taetigkeiten/allgemeines'
 	};

@@ -7,6 +7,7 @@ import Info from '@lucide/svelte/icons/info';
 import MapPinned from '@lucide/svelte/icons/map-pinned';
 import Megaphone from '@lucide/svelte/icons/megaphone';
 import Newspaper from '@lucide/svelte/icons/newspaper';
+import PartyPopper from '@lucide/svelte/icons/party-popper';
 import Phone from '@lucide/svelte/icons/phone';
 import Shield from '@lucide/svelte/icons/shield';
 import Siren from '@lucide/svelte/icons/siren';
@@ -62,7 +63,8 @@ export function buildNav(pages: MenuPage[]): NavGroup[] {
 				{ href: `/taetigkeiten/${c.einsatz.path}`, title: c.einsatz.title, text: 'Berichte und Einsatzstatistik', icon: Siren },
 				{ href: `/taetigkeiten/${c.uebung.path}`, title: c.uebung.title, text: 'Übungen und Schulungen', icon: Target },
 				{ href: `/taetigkeiten/${c.jugend.path}`, title: c.jugend.title, text: 'Was unsere Jugend erlebt', icon: Backpack },
-				{ href: `/taetigkeiten/${c.allgemein.path}`, title: c.allgemein.title, text: 'Veranstaltungen und mehr', icon: Newspaper },
+				{ href: `/taetigkeiten/${c.veranstaltung.path}`, title: c.veranstaltung.title, text: 'Feste und Feiern', icon: PartyPopper },
+				{ href: `/taetigkeiten/${c.allgemein.path}`, title: c.allgemein.title, text: 'Neuigkeiten und mehr', icon: Newspaper },
 				{ href: '/taetigkeiten', title: 'Alle Beiträge', text: 'Das gesamte Archiv', icon: Archive }
 			]
 		},

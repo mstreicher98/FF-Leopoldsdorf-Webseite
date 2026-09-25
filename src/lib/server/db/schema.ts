@@ -144,7 +144,7 @@ export const vehicleImages = sqliteTable(
 
 /* ------------------------------------------------------------ Beiträge */
 
-export const POST_CATEGORIES = ['allgemein', 'einsatz', 'uebung', 'jugend'] as const;
+export const POST_CATEGORIES = ['allgemein', 'einsatz', 'uebung', 'jugend', 'veranstaltung'] as const;
 export type PostCategory = (typeof POST_CATEGORIES)[number];
 /**
  * entwurf – nur im Admin sichtbar
