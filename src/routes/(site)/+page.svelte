@@ -84,7 +84,7 @@
 	{/if}
 </section>
 
-<section class="band">
+<section class="band footer-flush">
 	<div class="wrap band-grid">
 		<div>
 			<div class="sec-head">
@@ -341,7 +341,6 @@
 		padding: 3.5rem 0;
 		background: var(--c-surface-2);
 		border-top: 1px solid var(--c-line);
-		border-bottom: 1px solid var(--c-line);
 	}
 	.band-grid {
 		display: grid;

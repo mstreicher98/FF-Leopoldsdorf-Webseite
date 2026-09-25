@@ -99,6 +99,10 @@
 		color: rgb(255 255 255 / 0.86);
 		font-size: 0.95rem;
 	}
+	/* Endet eine Seite mit einem farbigen Band (Startseite: Statistik und Termine), schließt der Footer direkt an */
+	:global(main:has(> .footer-flush:last-child)) + .footer {
+		margin-top: 0;
+	}
 	.stripe {
 		height: 12px;
 	}
