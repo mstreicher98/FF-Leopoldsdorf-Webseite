@@ -67,7 +67,7 @@
 	<div class="wrap bar">
 		<a href="/" class="brand" aria-label="Freiwillige Feuerwehr Leopoldsdorf – zur Startseite">
 			<img src="/bilder/wappen.webp" alt="" width="189" height="224" class="crest" />
-			<img src="/bilder/logo-weiss.webp" alt="" width="640" height="186" class="logo" />
+			<img src="/bilder/logo-schriftzug.webp" alt="" width="640" height="122" class="logo" />
 		</a>
 
 		<nav aria-label="Hauptmenü" class="desktop">
@@ -136,7 +136,7 @@
 		<div class="drawer-head">
 			<a href="/" class="brand" aria-label="Freiwillige Feuerwehr Leopoldsdorf – zur Startseite">
 				<img src="/bilder/wappen.webp" alt="" width="189" height="224" class="crest" />
-				<img src="/bilder/logo-weiss.webp" alt="" width="640" height="186" class="logo" />
+				<img src="/bilder/logo-schriftzug.webp" alt="" width="640" height="122" class="logo" />
 			</a>
 			<!-- svelte-ignore a11y_autofocus -->
 			<button type="button" class="burger" aria-label="Menü schließen" onclick={() => (drawer = false)} autofocus>
@@ -214,7 +214,7 @@
 			height: 3.1rem;
 		}
 	}
-	/* Schriftzug mit Flamme; auf schmalen Handys etwas kleiner, damit Notruf und Menü Platz haben */
+	/* Schriftzug; auf schmalen Handys etwas kleiner, damit Notruf und Menü Platz haben */
 	.logo {
 		width: clamp(7.5rem, 40vw - 1rem, 9rem);
 		height: auto;
@@ -222,7 +222,7 @@
 	}
 	@media (min-width: 1024px) {
 		.logo {
-			width: 10.75rem;
+			width: 13rem;
 		}
 	}
 
