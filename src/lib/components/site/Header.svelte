@@ -67,10 +67,7 @@
 	<div class="wrap bar">
 		<a href="/" class="brand" aria-label="Freiwillige Feuerwehr Leopoldsdorf – zur Startseite">
 			<img src="/bilder/wappen.webp" alt="" width="189" height="224" class="crest" />
-			<span class="wordmark">
-				<span class="small">Freiwillige Feuerwehr</span>
-				<span class="big">Leopoldsdorf</span>
-			</span>
+			<img src="/bilder/logo-weiss.webp" alt="" width="640" height="186" class="logo" />
 		</a>
 
 		<nav aria-label="Hauptmenü" class="desktop">
@@ -137,12 +134,9 @@
 {#if drawer}
 	<div class="drawer" role="dialog" aria-modal="true" aria-label="Menü">
 		<div class="drawer-head">
-			<a href="/" class="brand">
+			<a href="/" class="brand" aria-label="Freiwillige Feuerwehr Leopoldsdorf – zur Startseite">
 				<img src="/bilder/wappen.webp" alt="" width="189" height="224" class="crest" />
-				<span class="wordmark">
-					<span class="small">Freiwillige Feuerwehr</span>
-					<span class="big">Leopoldsdorf</span>
-				</span>
+				<img src="/bilder/logo-weiss.webp" alt="" width="640" height="186" class="logo" />
 			</a>
 			<!-- svelte-ignore a11y_autofocus -->
 			<button type="button" class="burger" aria-label="Menü schließen" onclick={() => (drawer = false)} autofocus>
@@ -220,29 +214,15 @@
 			height: 3.1rem;
 		}
 	}
-	.wordmark {
-		display: flex;
-		flex-direction: column;
-		line-height: 1;
-	}
-	.wordmark .small {
-		font-size: 0.72rem;
-		font-weight: 650;
-		font-stretch: 85%;
-		letter-spacing: 0.01em;
-		opacity: 0.92;
-	}
-	.wordmark .big {
-		margin-top: 0.1rem;
-		font-size: 1.45rem;
-		font-weight: 850;
-		font-stretch: 66%;
-		text-transform: uppercase;
-		letter-spacing: 0.01em;
+	/* Schriftzug mit Flamme; auf schmalen Handys etwas kleiner, damit Notruf und Menü Platz haben */
+	.logo {
+		width: clamp(7.5rem, 40vw - 1rem, 9rem);
+		height: auto;
+		filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.2));
 	}
 	@media (min-width: 1024px) {
-		.wordmark .big {
-			font-size: 1.7rem;
+		.logo {
+			width: 10.75rem;
 		}
 	}
 
