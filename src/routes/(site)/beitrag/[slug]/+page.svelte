@@ -309,6 +309,10 @@
 	.body {
 		margin-top: 2.5rem;
 	}
+	/* Text so breit wie das Titelbild */
+	.prose {
+		max-width: none;
+	}
 	.h2 {
 		margin-bottom: 1rem;
 		font-size: 1.6rem;
