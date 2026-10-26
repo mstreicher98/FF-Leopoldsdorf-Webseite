@@ -15,7 +15,7 @@
 	let { title, subtitle = '', image, plate = false, children }: Props = $props();
 </script>
 
-<!-- Niedrige Titelleiste: Foto über die ganze Breite, Titel darauf – der Inhalt beginnt gleich darunter -->
+<!-- Titelleiste: Foto über die ganze Breite, Titel darauf -->
 <section class="banner" class:has-image={!!image}>
 	{#if image}
 		{#if typeof image === 'string'}
@@ -66,13 +66,13 @@
 	.content {
 		display: flex;
 		align-items: flex-end;
-		min-height: 12rem;
-		padding-block: 2.5rem 2rem;
+		min-height: 16rem;
+		padding-block: 3rem 2rem;
 	}
 	@media (min-width: 768px) {
 		.content {
-			min-height: 15rem;
-			padding-block: 3rem 2.5rem;
+			min-height: 23rem;
+			padding-block: 4rem 3rem;
 		}
 	}
 	.title {
