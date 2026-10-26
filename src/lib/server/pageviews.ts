@@ -14,6 +14,20 @@ const BOT_RE = /bot|crawl|spider|slurp|bing|yandex|baidu|duckduck|facebookextern
 const pending = new Map<string, number>();
 let timer: ReturnType<typeof setInterval> | null = null;
 
+/**
+ * Nur eigene, öffentliche Pfade zählen. "//andere-seite.at" wäre im Browser ein Link
+ * auf eine fremde Seite und darf so nicht in die Liste „Meistgelesen“ gelangen.
+ */
+export function isCountablePath(path: string): boolean {
+	return (
+		path.length <= 200 &&
+		/^\/[\w\-./]*$/.test(path) &&
+		!path.includes('//') &&
+		!/(^|\/)\.\.?(\/|$)/.test(path) &&
+		!path.startsWith('/admin')
+	);
+}
+
 export function isBot(userAgent: string | null): boolean {
 	return !userAgent || BOT_RE.test(userAgent);
 }

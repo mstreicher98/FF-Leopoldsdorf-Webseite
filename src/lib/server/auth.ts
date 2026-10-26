@@ -56,6 +56,36 @@ export function passwordProblem(password: string, confirm?: string): string | nu
 const sha256 = (s: string) => createHash('sha256').update(s).digest('hex');
 const newToken = () => randomBytes(32).toString('base64url');
 
+/* ---------------------------------------------------------------- Anmeldename */
+
+/**
+ * Benutzer zur Anmeldung per Benutzername oder E-Mail. Der Benutzername hat Vorrang;
+ * eine E-Mail zählt nur, wenn sie genau einem Konto gehört – sonst könnte jemand mit
+ * der Adresse eines anderen dessen Anmeldung auf das eigene Konto umlenken.
+ */
+export async function findLoginUser(identifier: string): Promise<User | undefined> {
+	const byName = await db.select().from(users).where(eq(users.username, identifier)).get();
+	if (byName) return byName;
+	if (!identifier.includes('@')) return undefined;
+	const byEmail = await db
+		.select()
+		.from(users)
+		.where(sql`lower(${users.email}) = ${identifier.toLowerCase()}`)
+		.limit(2)
+		.all();
+	return byEmail.length === 1 ? byEmail[0] : undefined;
+}
+
+/** Gehört die E-Mail-Adresse schon einem anderen Konto? */
+export async function emailInUse(email: string, exceptUserId: number | null = null): Promise<boolean> {
+	const row = await db
+		.select({ id: users.id })
+		.from(users)
+		.where(and(sql`lower(${users.email}) = ${email.toLowerCase()}`, exceptUserId == null ? undefined : sql`${users.id} <> ${exceptUserId}`))
+		.get();
+	return !!row;
+}
+
 /* ---------------------------------------------------------------- Sitzungen */
 
 export const SESSION_COOKIE = 'ff_session';

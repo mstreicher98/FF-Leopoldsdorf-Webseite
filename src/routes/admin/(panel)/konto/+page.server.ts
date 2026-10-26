@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
-import { hashPassword, invalidateUserSessions, passwordProblem, verifyPassword } from '$lib/server/auth';
+import { emailInUse, hashPassword, invalidateUserSessions, passwordProblem, verifyPassword } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import { sessions, users } from '$lib/server/db/schema';
 import { requireUser, str, strOrNull } from '$lib/server/guard';
@@ -25,6 +25,7 @@ export const actions: Actions = {
 		const email = strOrNull(f.get('email'), 120)?.toLowerCase() ?? null;
 		if (!name) return fail(400, { error: 'Bitte deinen Namen eingeben.' });
 		if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail(400, { error: 'Die E-Mail-Adresse sieht nicht gültig aus.' });
+		if (email && (await emailInUse(email, me.id))) return fail(400, { error: 'Diese E-Mail-Adresse gehört schon zu einem anderen Konto.' });
 		await db.update(users).set({ name, email }).where(eq(users.id, me.id));
 		return { message: 'Gespeichert' };
 	},

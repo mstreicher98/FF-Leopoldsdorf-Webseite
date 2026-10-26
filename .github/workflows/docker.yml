@@ -18,6 +18,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Standardrechte des GITHUB_TOKEN: nur lesen. Der Image-Job erweitert das um Packages.
+permissions:
+  contents: read
+
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: false

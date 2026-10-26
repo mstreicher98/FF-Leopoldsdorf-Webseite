@@ -1,18 +1,16 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { eq, or } from 'drizzle-orm';
 import {
 	burnPasswordTime,
 	clearFailures,
 	createChallenge,
 	createSession,
+	findLoginUser,
 	isRateLimited,
 	registerFailure,
 	setSessionCookie,
 	verifyPassword
 } from '$lib/server/auth';
 import { BACKUP_NAME_RE } from '$lib/server/backup';
-import { db } from '$lib/server/db';
-import { users } from '$lib/server/db/schema';
 import { checked, safeNext, str } from '$lib/server/guard';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -38,11 +36,7 @@ export const actions: Actions = {
 		}
 		if (!identifier || !password) return fail(400, { identifier, error: 'Bitte Benutzername und Passwort eingeben.' });
 
-		const user = await db
-			.select()
-			.from(users)
-			.where(or(eq(users.username, identifier), eq(users.email, identifier)))
-			.get();
+		const user = await findLoginUser(identifier);
 		const ok = user && user.active ? await verifyPassword(user.passwordHash, password) : (await burnPasswordTime(password), false);
 		if (!user || !ok) {
 			registerFailure(ipKey);

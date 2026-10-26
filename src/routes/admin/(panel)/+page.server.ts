@@ -3,6 +3,7 @@ import { todayVienna } from '$lib/format';
 import { recentActions } from '$lib/server/audit';
 import { upcomingEvents } from '$lib/server/content';
 import { db } from '$lib/server/db';
+import { isCountablePath } from '$lib/server/pageviews';
 import { members, pageViews, posts, vehicles } from '$lib/server/db/schema';
 import { einsatzStats } from '$lib/server/stats';
 import type { PageServerLoad } from './$types';
@@ -24,7 +25,7 @@ export const load: PageServerLoad = async () => {
 	const year = Number(todayVienna().slice(0, 4));
 	const days = daysBack(30);
 
-	const [viewRows, topRows, stats, drafts, events, actions, counts] = await Promise.all([
+	const [viewRows, topAll, stats, drafts, events, actions, counts] = await Promise.all([
 		db
 			.select({ day: pageViews.day, n: sql<number>`sum(${pageViews.views})` })
 			.from(pageViews)
@@ -37,7 +38,7 @@ export const load: PageServerLoad = async () => {
 			.where(gte(pageViews.day, days[0]))
 			.groupBy(pageViews.path)
 			.orderBy(desc(sql`sum(${pageViews.views})`))
-			.limit(8)
+			.limit(20)
 			.all(),
 		einsatzStats(year),
 		db
@@ -62,6 +63,9 @@ export const load: PageServerLoad = async () => {
 
 	const perDay = new Map(viewRows.map((r) => [r.day, count(r.n)]));
 	const views = days.map((day) => ({ day, n: perDay.get(day) ?? 0 }));
+
+	// Nur eigene Pfade verlinken – ältere Einträge wie "//andere-seite.at" fallen weg
+	const topRows = topAll.filter((r) => isCountablePath(r.path)).slice(0, 8);
 
 	// Beitragsadressen in Titel übersetzen
 	const slugs = topRows.map((r) => r.path.match(/^\/beitrag\/(.+)$/)?.[1]).filter((s): s is string => !!s);

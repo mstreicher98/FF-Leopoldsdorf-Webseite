@@ -2,7 +2,7 @@ import { fail } from '@sveltejs/kit';
 import { and, asc, eq, ne, sql } from 'drizzle-orm';
 import { ROLES, type Role } from '$lib/permissions';
 import { logAction } from '$lib/server/audit';
-import { generatePassword, hashPassword, invalidateUserSessions } from '$lib/server/auth';
+import { emailInUse, generatePassword, hashPassword, invalidateUserSessions } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
 import { intOrNull, requirePermission, str, strOrNull } from '$lib/server/guard';
@@ -57,6 +57,7 @@ export const actions: Actions = {
 		if (!name) return fail(400, { error: 'Bitte den Namen eingeben.' });
 		if (!/^[a-z0-9._-]{3,40}$/.test(username)) return fail(400, { error: 'Benutzername: 3–40 Zeichen, nur Kleinbuchstaben, Ziffern, Punkt, Strich.' });
 		if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail(400, { error: 'Die E-Mail-Adresse sieht nicht gültig aus.' });
+		if (email && (await emailInUse(email))) return fail(400, { error: 'Diese E-Mail-Adresse gehört schon zu einem anderen Konto.' });
 		if (await db.select({ id: users.id }).from(users).where(eq(users.username, username)).get()) {
 			return fail(400, { error: `Den Benutzernamen „${username}“ gibt es schon.` });
 		}

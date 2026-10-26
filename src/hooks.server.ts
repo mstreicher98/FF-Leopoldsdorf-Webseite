@@ -67,6 +67,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 
 	response.headers.set('X-Content-Type-Options', 'nosniff');
+	// Nicht in fremde Seiten einbetten (CSP frame-ancestors gilt nur für Seiten, das hier auch für ältere Browser)
+	response.headers.set('X-Frame-Options', 'DENY');
+	// Hinter Cloudflare läuft die Seite nur über HTTPS – Browser sollen gar nicht erst http:// versuchen
+	if (event.url.protocol === 'https:') response.headers.set('Strict-Transport-Security', 'max-age=31536000');
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
 	if (admin) {

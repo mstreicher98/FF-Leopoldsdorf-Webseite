@@ -1,4 +1,4 @@
-import { isBot, recordView } from '$lib/server/pageviews';
+import { isBot, isCountablePath, recordView } from '$lib/server/pageviews';
 import type { RequestHandler } from './$types';
 
 /**
@@ -23,8 +23,7 @@ function tooMany(ip: string): boolean {
 
 export const POST: RequestHandler = async ({ request, locals, getClientAddress }) => {
 	const path = (await request.text()).trim();
-	const valid = /^\/[\w\-./]*$/.test(path) && path.length <= 200 && !path.startsWith('/admin');
-	if (valid && !locals.user && !isBot(request.headers.get('user-agent')) && !tooMany(getClientAddress())) {
+	if (isCountablePath(path) && !locals.user && !isBot(request.headers.get('user-agent')) && !tooMany(getClientAddress())) {
 		recordView(path);
 	}
 	return new Response(null, { status: 204 });
