@@ -47,7 +47,7 @@
 	subtitle={data.total > 1
 		? `${data.total} Frauen und Männer, die in Leopoldsdorf helfen, wenn es darauf ankommt`
 		: 'Die Frauen und Männer, die in Leopoldsdorf helfen, wenn es darauf ankommt'}
-	image="/banner/mannschaft.webp"
+	image={data.banner}
 />
 
 <div class="wrap">

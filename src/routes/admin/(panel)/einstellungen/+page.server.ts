@@ -5,9 +5,8 @@ import { logAction } from '$lib/server/audit';
 import { clearSessionCookie } from '$lib/server/auth';
 import { createBackup, listBackups } from '$lib/server/backup';
 import { RestoreError, restoreBackup } from '$lib/server/restore';
-import { mediaById } from '$lib/server/content';
 import { DB_FILE } from '$lib/server/db';
-import { intOrNull, requirePermission, str } from '$lib/server/guard';
+import { requirePermission, str } from '$lib/server/guard';
 import { uploadsSize } from '$lib/server/media';
 import { getSettings, saveSettings, type SiteSettings } from '$lib/server/settings';
 import type { Actions, PageServerLoad } from './$types';
@@ -17,7 +16,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const settings = await getSettings();
 	return {
 		settings,
-		hero: await mediaById(settings.heroMediaId),
 		backups: listBackups(),
 		sizes: { db: fs.existsSync(DB_FILE) ? fs.statSync(DB_FILE).size : 0, uploads: uploadsSize() }
 	};
@@ -49,8 +47,7 @@ export const actions: Actions = {
 			facebook: social.facebook!,
 			instagram: social.instagram!,
 			x: social.x!,
-			youtube: social.youtube!,
-			heroMediaId: intOrNull(f.get('titelbild'))
+			youtube: social.youtube!
 		};
 		await saveSettings(patch);
 		await logAction(me.id, 'geändert', 'einstellungen', null, 'Angaben der Feuerwehr');

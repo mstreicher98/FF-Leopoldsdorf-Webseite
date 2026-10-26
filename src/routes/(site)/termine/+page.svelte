@@ -25,7 +25,7 @@
 
 <Seo title="Termine" description="Veranstaltungen und öffentliche Termine der Freiwilligen Feuerwehr Leopoldsdorf" />
 
-<Banner title="Termine" subtitle="Feste, Übungen mit Publikum und alles, wozu wir Sie einladen" image="/banner/termine.webp" />
+<Banner title="Termine" subtitle="Feste, Übungen mit Publikum und alles, wozu wir Sie einladen" image={data.banner} />
 
 <div class="wrap layout">
 	<div>

@@ -10,9 +10,11 @@
 		hint?: string;
 		/** Form des Vorschaubilds */
 		aspect?: string;
+		/** Bild, das ohne Auswahl gezeigt wird (Standardbild der Seite) */
+		fallback?: string;
 	}
 
-	let { name, label, value = $bindable(), hint = '', aspect = '3 / 2' }: Props = $props();
+	let { name, label, value = $bindable(), hint = '', aspect = '3 / 2', fallback = '' }: Props = $props();
 	let open = $state(false);
 </script>
 
@@ -22,6 +24,9 @@
 		<button type="button" class="preview" style:aspect-ratio={aspect} onclick={() => (open = true)}>
 			{#if value}
 				<img src={mediaSrc(value, 800)} alt={value.alt} />
+			{:else if fallback}
+				<img src={fallback} alt="" />
+				<span class="badge">Standardbild</span>
 			{:else}
 				<span class="ph"><ImagePlus size={26} /> Bild wählen</span>
 			{/if}
@@ -51,6 +56,20 @@
 		overflow: hidden;
 		background: var(--c-surface-2);
 		border: 1px dashed var(--c-line-strong);
+	}
+	.preview {
+		position: relative;
+	}
+	.badge {
+		position: absolute;
+		left: 0.5rem;
+		bottom: 0.5rem;
+		padding: 0.15rem 0.5rem;
+		border-radius: 999px;
+		background: rgb(16 24 33 / 0.75);
+		color: #fff;
+		font-size: 0.75rem;
+		font-weight: 650;
 	}
 	.preview img {
 		width: 100%;

@@ -10,7 +10,7 @@
 
 <Seo title="Kommando" description="Das Kommando der Freiwilligen Feuerwehr Leopoldsdorf" />
 
-<Banner title="Kommando" subtitle="Wer unsere Feuerwehr führt und organisiert" image="/banner/kdo.webp" />
+<Banner title="Kommando" subtitle="Wer unsere Feuerwehr führt und organisiert" image={data.banner} />
 
 <div class="wrap">
 	{#if data.kommando.length}

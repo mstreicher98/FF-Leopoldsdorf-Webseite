@@ -4,17 +4,13 @@
 	import HardDrive from '@lucide/svelte/icons/hard-drive';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import BackupRestore from '$lib/components/admin/BackupRestore.svelte';
-	import ImageField from '$lib/components/admin/ImageField.svelte';
 	import { formatBytes, formatStamp } from '$lib/format';
 	import { submitting } from '$lib/formEnhance';
-	import type { MediaRef } from '$lib/media';
 
 	let { data } = $props();
 	const s = $derived(data.settings);
 	let busy = $state(false);
 	let backupBusy = $state(false);
-	// svelte-ignore state_referenced_locally
-	let hero = $state<MediaRef | null>(data.hero);
 	let restore = $state<{ checkStand: (name: string) => Promise<void> }>();
 </script>
 
@@ -64,11 +60,8 @@
 			<label class="field"><span class="label">X</span><input class="input" type="url" name="x" value={s.x} placeholder="https://" /></label>
 		</section>
 
-		<section class="card card-pad">
-			<ImageField name="titelbild" label="Titelbild der Startseite" bind:value={hero} aspect="16 / 10" hint="Leer lassen für das Standardbild. Am besten ein Querformat mit ruhiger linker Bildhälfte – dort steht der Leitspruch." />
-		</section>
 	</div>
-	<p class="hint">Impressum und Datenschutz enthalten Adresse und Kontakt als Text. Bitte bei Änderungen auch unter „Seiten“ anpassen.</p>
+	<p class="hint">Impressum und Datenschutz enthalten Adresse und Kontakt als Text. Bitte bei Änderungen auch unter „Seiten“ anpassen. Die Titelbilder aller Seiten, auch der Startseite, stehen unter <a href="/admin/seiten#titelbilder">Seiten → Titelbilder</a>.</p>
 	<div class="actionbar">
 		<button class="btn btn-primary" disabled={busy}>Einstellungen speichern</button>
 	</div>

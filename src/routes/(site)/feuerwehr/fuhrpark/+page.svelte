@@ -11,7 +11,7 @@
 
 <Seo title="Fuhrpark" description="Die Einsatzfahrzeuge der Freiwilligen Feuerwehr Leopoldsdorf" />
 
-<Banner title="Fuhrpark" subtitle="Unsere Fahrzeuge für Brand, Technik und Schadstoff" image="/banner/fuhrpark.webp" />
+<Banner title="Fuhrpark" subtitle="Unsere Fahrzeuge für Brand, Technik und Schadstoff" image={data.banner} />
 
 {#snippet card(v: (typeof data.vehicles)[number])}
 	<article class="vehicle">

@@ -31,7 +31,7 @@
 
 <Seo title={title} description={subtitle} />
 
-<Banner {title} {subtitle} image={cat?.banner ?? '/banner/archiv.webp'} />
+<Banner {title} {subtitle} image={data.banner} />
 
 <div class="wrap">
 	<div class="toolbar">

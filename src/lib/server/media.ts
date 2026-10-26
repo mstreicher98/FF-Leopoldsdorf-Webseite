@@ -4,8 +4,10 @@ import { randomBytes } from 'node:crypto';
 import heicDecode from 'heic-decode';
 import sharp from 'sharp';
 import { eq, like, or, sql } from 'drizzle-orm';
+import { BANNER_PAGES } from '$lib/banners';
 import { db, UPLOAD_DIR } from './db';
 import { media, members, pages, postImages, posts, vehicleImages, vehicles, type Media } from './db/schema';
+import { getSettings } from './settings';
 
 /** Breiten, in denen jedes Bild abgelegt wird (nur bis zur Originalgröße) */
 export const VARIANT_WIDTHS = [400, 800, 1600, 2400];
@@ -172,6 +174,10 @@ export async function mediaUsage(m: Pick<Media, 'id' | 'file'>): Promise<string[
 		.where(or(eq(pages.bannerMediaId, m.id), like(pages.contentHtml, inline)))
 		.all();
 	out.push(...pageRows.map((r) => `Seite „${r.title}“`));
+	const s = await getSettings();
+	for (const b of BANNER_PAGES) {
+		if ((b.key === 'start' ? s.heroMediaId : s.banners[b.key]) === m.id) out.push(`Titelbild „${b.title}“`);
+	}
 	return out;
 }
 

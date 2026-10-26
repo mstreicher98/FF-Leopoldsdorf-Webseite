@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import type { BannerKey } from '$lib/banners';
 import { db } from './db';
 import { settings } from './db/schema';
 
@@ -21,6 +22,8 @@ export interface SiteSettings {
 	youtube: string;
 	/** Titelbild der Startseite aus der Mediathek; null = Standardbild */
 	heroMediaId: number | null;
+	/** Titelbilder der festen Seiten (Einsätze, Termine …) aus der Mediathek; fehlt ein Eintrag, gilt das Standardbild */
+	banners: Partial<Record<Exclude<BannerKey, 'start'>, number>>;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -39,7 +42,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
 	instagram: 'https://www.instagram.com/feuerwehr_leopoldsdorf/',
 	x: 'https://x.com/ffleopoldsdorf',
 	youtube: 'https://www.youtube.com/@freiwilligefeuerwehrleopol7658',
-	heroMediaId: null
+	heroMediaId: null,
+	banners: {}
 };
 
 const KEY = 'site';

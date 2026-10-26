@@ -2,6 +2,7 @@ import { error } from '@sveltejs/kit';
 import { categoryByPath } from '$lib/categories';
 import { todayVienna } from '$lib/format';
 import { einsatzTicks, listPosts, postYears } from '$lib/server/content';
+import { pageBanner } from '$lib/server/banners';
 import { einsatzStats } from '$lib/server/stats';
 import type { PageServerLoad } from './$types';
 
@@ -21,5 +22,5 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	const statsYear = year ?? Number(todayVienna().slice(0, 4));
 	const [stats, ticks] = cat?.id === 'einsatz' ? await Promise.all([einsatzStats(statsYear), einsatzTicks(statsYear)]) : [null, []];
 
-	return { category: cat ?? null, years, year: year ?? null, ...result, stats, ticks };
+	return { category: cat ?? null, years, year: year ?? null, ...result, stats, ticks, banner: await pageBanner(cat?.id ?? 'archiv') };
 };
