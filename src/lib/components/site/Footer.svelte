@@ -39,8 +39,10 @@
 	<div class="warnstripe stripe" aria-hidden="true"></div>
 	<div class="wrap grid">
 		<div class="col about">
-			<img src="/bilder/wappen.webp" alt="" width="189" height="224" class="crest" />
-			<p class="name">{s.name}</p>
+			<p class="brand">
+				<img src="/bilder/wappen.webp" alt="" width="189" height="224" class="crest" />
+				<img src="/bilder/logo-schriftzug.webp" alt={s.name} width="640" height="122" class="logo" />
+			</p>
 			<p class="addr">{s.street}<br />{s.zip} {s.city}</p>
 		</div>
 
@@ -122,22 +124,22 @@
 			grid-template-columns: 1.2fr 1fr 1fr 0.9fr;
 		}
 	}
+	/* Wappen und Schriftzug wie im Header */
+	.brand {
+		display: flex;
+		align-items: center;
+		gap: 0.7rem;
+	}
 	.crest {
-		height: 3.5rem;
+		height: 3.25rem;
 		width: auto;
 	}
-	.name {
-		margin-top: 0.9rem;
-		font-size: 1.3rem;
-		font-weight: 800;
-		font-stretch: 70%;
-		text-transform: uppercase;
-		line-height: 1.05;
-		color: #fff;
-		max-width: 14ch;
+	.logo {
+		width: 11rem;
+		height: auto;
 	}
 	.addr {
-		margin-top: 0.5rem;
+		margin-top: 0.9rem;
 	}
 	.h {
 		margin-bottom: 0.75rem;

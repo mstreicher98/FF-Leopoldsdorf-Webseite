@@ -370,13 +370,14 @@
 			margin-left: 0.5rem;
 		}
 	}
+	/* Notruf als kleine Hinweistafel: weiß, roter Rahmen innen */
 	.notruf {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.4rem;
 		height: 2.5rem;
-		padding: 0 0.9rem;
-		border-radius: 999px;
+		padding: 0 0.85rem;
+		border-radius: 6px;
 		background: #fff;
 		color: var(--c-red);
 		font-weight: 800;
@@ -384,10 +385,17 @@
 		font-size: 1.05rem;
 		text-decoration: none;
 		font-variant-numeric: tabular-nums;
-		box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+		box-shadow:
+			inset 0 0 0 3px #fff,
+			inset 0 0 0 5px var(--c-red),
+			0 1px 2px rgb(0 0 0 / 0.15);
 	}
 	.notruf:hover {
 		background: #fff4f2;
+		box-shadow:
+			inset 0 0 0 3px #fff4f2,
+			inset 0 0 0 5px var(--c-red),
+			0 1px 2px rgb(0 0 0 / 0.15);
 	}
 	.hide-sm {
 		display: none;

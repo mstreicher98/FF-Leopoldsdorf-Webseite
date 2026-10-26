@@ -3,7 +3,7 @@ import { alias } from 'drizzle-orm/sqlite-core';
 import { todayVienna } from '$lib/format';
 import type { MediaRef } from '$lib/media';
 import type { EinsatzGroup } from '$lib/einsatz';
-import type { EventView, MemberView, MenuPage, PostSummary, VehicleRef } from '$lib/types';
+import type { EinsatzTick, EventView, MemberView, MenuPage, PostSummary, VehicleRef } from '$lib/types';
 import { db } from './db';
 import {
 	einsatzarten,
@@ -111,11 +111,20 @@ function summaryQuery(where: SQL | undefined) {
 
 const published = eq(posts.status, 'veroeffentlicht');
 
-export async function listPosts(opts: { category?: PostCategory; year?: number; page?: number; pageSize?: number; exclude?: number[] }) {
+export async function listPosts(opts: {
+	category?: PostCategory;
+	/** alle Kategorien außer dieser, z. B. alles abseits der Einsätze */
+	notCategory?: PostCategory;
+	year?: number;
+	page?: number;
+	pageSize?: number;
+	exclude?: number[];
+}) {
 	const pageSize = opts.pageSize ?? 12;
 	const page = Math.max(1, opts.page ?? 1);
 	const conds: SQL[] = [published];
 	if (opts.category) conds.push(eq(posts.category, opts.category));
+	if (opts.notCategory) conds.push(sql`${posts.category} <> ${opts.notCategory}`);
 	if (opts.year) conds.push(sql`substr(${posts.date}, 1, 4) = ${String(opts.year)}`);
 	if (opts.exclude?.length) conds.push(notInArray(posts.id, opts.exclude));
 	const where = and(...conds);
@@ -170,21 +179,62 @@ export async function postBySlug(slug: string, drafts = false) {
 		.where(eq(postImages.postId, row.id))
 		.orderBy(asc(postImages.sortOrder))
 		.all();
-	const vehicleRows = await db
-		.select({ id: vehicles.id, slug: vehicles.slug, name: vehicles.name, shortName: vehicles.shortName, radioName: vehicles.radioName })
-		.from(postVehicles)
-		.innerJoin(vehicles, eq(vehicles.id, postVehicles.vehicleId))
-		.where(eq(postVehicles.postId, row.id))
-		.orderBy(asc(vehicles.sortOrder), asc(vehicles.name))
-		.all();
 	return {
 		...toSummary(row),
 		contentHtml: row.contentHtml,
 		summaryText: row.summary,
 		updatedAt: row.updatedAt,
 		gallery: gallery as MediaRef[],
-		vehicles: vehicleRows as VehicleRef[]
+		vehicles: await postVehicleRefs(row.id)
 	};
+}
+
+/** Eingesetzte Fahrzeuge eines Beitrags in der Reihenfolge des Fuhrparks */
+export async function postVehicleRefs(postId: number): Promise<VehicleRef[]> {
+	return db
+		.select({ id: vehicles.id, slug: vehicles.slug, name: vehicles.name, shortName: vehicles.shortName, radioName: vehicles.radioName })
+		.from(postVehicles)
+		.innerJoin(vehicles, eq(vehicles.id, postVehicles.vehicleId))
+		.where(eq(postVehicles.postId, postId))
+		.orderBy(asc(vehicles.sortOrder), asc(vehicles.name))
+		.all();
+}
+
+/**
+ * Jeder gezählte Einsatz eines Jahres in zeitlicher Reihenfolge, für die Strichliste.
+ * Gleiche Auswahl wie die Einsatzstatistik; ein Link nur, wenn es einen öffentlichen Bericht gibt.
+ */
+export async function einsatzTicks(year: number): Promise<EinsatzTick[]> {
+	const rows = await db
+		.select({
+			date: posts.date,
+			time: posts.time,
+			title: posts.title,
+			slug: posts.slug,
+			status: posts.status,
+			code: einsatzarten.code,
+			group: einsatzarten.group
+		})
+		.from(posts)
+		.leftJoin(einsatzarten, eq(einsatzarten.id, posts.einsatzartId))
+		.where(
+			and(
+				eq(posts.category, 'einsatz'),
+				inArray(posts.status, ['veroeffentlicht', 'statistik']),
+				sql`substr(${posts.date}, 1, 4) = ${String(year)}`,
+				sql`(${einsatzarten.id} IS NULL OR ${einsatzarten.countsInStats} = 1)`
+			)
+		)
+		.orderBy(asc(posts.date), sql`${posts.time} IS NULL`, asc(posts.time), asc(posts.id))
+		.all();
+	return rows.map((r) => ({
+		date: r.date,
+		time: r.time,
+		title: r.title,
+		code: r.code,
+		group: r.group ?? 'sonstiges',
+		slug: r.status === 'veroeffentlicht' ? r.slug : null
+	}));
 }
 
 /* ------------------------------------------------------------ Termine */

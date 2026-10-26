@@ -73,7 +73,7 @@
 					{/if}
 					<dl class="cell">
 						<dt>Alarmierung</dt>
-						<dd class="tabular">{formatDayWeekday(post.date)}{#if post.time}<br /><strong>{formatTime(post.time)}</strong>{/if}</dd>
+						<dd class="tabular">{#if post.time}<span class="big">{post.time}</span><br />{/if}{formatDayWeekday(post.date)}</dd>
 					</dl>
 					{#if e.ort}
 						<dl class="cell">

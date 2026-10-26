@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import Banner from '$lib/components/site/Banner.svelte';
+	import Einsatzbuch from '$lib/components/site/Einsatzbuch.svelte';
 	import Pagination from '$lib/components/site/Pagination.svelte';
 	import PostCard from '$lib/components/site/PostCard.svelte';
 	import Seo from '$lib/components/site/Seo.svelte';
-	import StatsBar from '$lib/components/site/StatsBar.svelte';
+	import Strichliste from '$lib/components/site/Strichliste.svelte';
 	import { CATEGORIES, CATEGORY_ORDER } from '$lib/categories';
 
 	let { data } = $props();
@@ -53,23 +54,28 @@
 	</div>
 
 	{#if data.stats}
-		<section class="stats" aria-label="Einsatzstatistik {data.stats.year}">
-			<h2 class="stats-title">Einsatzstatistik {data.stats.year}</h2>
-			{#if data.stats.total}
-				<StatsBar stats={data.stats} note="Gezählt werden alle Einsätze, auch solche ohne eigenen Bericht. Brandsicherheitswachen sind nicht mitgezählt." />
-			{:else}
-				<p class="empty">Für {data.stats.year} sind noch keine Einsätze eingetragen.</p>
-			{/if}
+		<section class="stats" aria-label="Einsätze {data.stats.year}">
+			<Strichliste
+				year={data.stats.year}
+				ticks={data.ticks}
+				byGroup={data.stats.byGroup}
+				total={data.stats.total}
+				note="Jeder Strich ist ein Einsatz, auch wenn es dazu keinen eigenen Bericht gibt. Brandsicherheitswachen zählen nicht mit."
+			/>
 		</section>
 	{/if}
 
 	{#if data.items.length}
-		<p class="count">{data.total} {data.total === 1 ? 'Beitrag' : 'Beiträge'}{data.year ? ` aus ${data.year}` : ''}</p>
-		<div class="grid">
-			{#each data.items as post (post.id)}
-				<PostCard {post} headingLevel={2} />
-			{/each}
-		</div>
+		<p class="count">{data.total} {cat?.id === 'einsatz' ? (data.total === 1 ? 'Einsatzbericht' : 'Einsatzberichte') : data.total === 1 ? 'Beitrag' : 'Beiträge'}{data.year ? ` aus ${data.year}` : ''}</p>
+		{#if cat?.id === 'einsatz'}
+			<Einsatzbuch posts={data.items} headingLevel={2} years />
+		{:else}
+			<div class="grid">
+				{#each data.items as post (post.id)}
+					<PostCard {post} headingLevel={2} />
+				{/each}
+			</div>
+		{/if}
 		<Pagination page={data.page} pages={data.pages} href={(p) => href(p)} />
 	{:else}
 		<p class="empty big">Hier gibt es noch keine Beiträge.</p>
@@ -86,6 +92,7 @@
 		padding: 1.25rem 0;
 		border-bottom: 1px solid var(--c-line);
 	}
+	/* Register wie im Menü: aktive Kategorie rot unterstrichen */
 	.tabs {
 		display: flex;
 		gap: 0.25rem;
@@ -95,20 +102,30 @@
 		scrollbar-width: none;
 	}
 	.tabs a {
+		position: relative;
 		flex-shrink: 0;
-		padding: 0.5rem 0.9rem;
-		border-radius: 999px;
+		padding: 0.55rem 0.7rem;
+		border-radius: 6px;
 		font-weight: 650;
 		color: var(--c-ink-2);
 		text-decoration: none;
 	}
 	.tabs a:hover {
-		background: var(--c-surface-3);
+		background: var(--c-surface-2);
 		color: var(--c-ink);
 	}
 	.tabs a[aria-current='page'] {
-		background: var(--c-night);
-		color: #fff;
+		color: var(--c-ink);
+	}
+	.tabs a[aria-current='page']::after {
+		content: '';
+		position: absolute;
+		left: 0.7rem;
+		right: 0.7rem;
+		bottom: 0.1rem;
+		height: 3px;
+		border-radius: 2px;
+		background: var(--c-red);
 	}
 	.year {
 		display: flex;
@@ -128,17 +145,6 @@
 	}
 	.stats {
 		margin-top: 2.5rem;
-		padding: 1.75rem;
-		border-radius: 14px;
-		background: var(--c-surface-2);
-		border: 1px solid var(--c-line);
-	}
-	.stats-title {
-		margin-bottom: 1rem;
-		font-size: 1.35rem;
-		font-weight: 800;
-		font-stretch: 72%;
-		text-transform: uppercase;
 	}
 	.count {
 		margin-top: 2.5rem;

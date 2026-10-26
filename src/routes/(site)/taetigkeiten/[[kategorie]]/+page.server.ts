@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import { categoryByPath } from '$lib/categories';
 import { todayVienna } from '$lib/format';
-import { listPosts, postYears } from '$lib/server/content';
+import { einsatzTicks, listPosts, postYears } from '$lib/server/content';
 import { einsatzStats } from '$lib/server/stats';
 import type { PageServerLoad } from './$types';
 
@@ -19,7 +19,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	// Einsatzstatistik für das gewählte bzw. aktuelle Jahr
 	const statsYear = year ?? Number(todayVienna().slice(0, 4));
-	const stats = cat?.id === 'einsatz' ? await einsatzStats(statsYear) : null;
+	const [stats, ticks] = cat?.id === 'einsatz' ? await Promise.all([einsatzStats(statsYear), einsatzTicks(statsYear)]) : [null, []];
 
-	return { category: cat ?? null, years, year: year ?? null, ...result, stats };
+	return { category: cat ?? null, years, year: year ?? null, ...result, stats, ticks };
 };

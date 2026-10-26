@@ -17,7 +17,7 @@
 
 <Seo title={page.title} description={page.subtitle} />
 
-<Banner title={page.title} subtitle={page.subtitle} image={banner} />
+<Banner title={page.title} subtitle={page.subtitle} image={banner} plate={page.section === 'buergerservice'} />
 
 <div class="wrap layout" class:with-nav={siblings.length > 1}>
 	<div>
