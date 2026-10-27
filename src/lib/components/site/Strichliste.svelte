@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { EINSATZ_GROUPS, GROUP_PLURAL, type EinsatzGroup } from '$lib/einsatz';
-	import { formatDay, formatNumber, monthShort, todayVienna, weekdayShort } from '$lib/format';
+	import { formatDay, formatNumber, todayVienna, weekdayShort } from '$lib/format';
 	import type { EinsatzTick } from '$lib/types';
 
 	interface Props {
@@ -19,17 +19,10 @@
 	const today = todayVienna();
 	const current = $derived(String(year) === today.slice(0, 4));
 
-	/* Eine Spalte je Monat, gleich breit: die Zeitachse bleibt maßstabsgetreu,
-	   auch wenn ein Monat (Sturm, Hochwasser) viel mehr Einsätze hat als andere */
-	const months = $derived.by(() => {
-		let i = 0;
-		return Array.from({ length: 12 }, (_, m) => {
-			const mm = String(m + 1).padStart(2, '0');
-			const items = ticks.filter((t) => t.date.slice(5, 7) === mm).map((t) => ({ ...t, i: i++ }));
-			return { mm, label: monthShort(`${year}-${mm}-01`), items, future: `${year}-${mm}` > today.slice(0, 7) };
-		});
-	});
-	const flat = $derived(months.flatMap((m) => m.items));
+	/* Das ganze Jahr in einer Reihe: ein Strich je Einsatz, nach Einsatzart gruppiert */
+	const flat = $derived(
+		EINSATZ_GROUPS.flatMap((g) => ticks.filter((t) => t.group === g)).map((t, i) => ({ ...t, i }))
+	);
 	const groups = $derived(EINSATZ_GROUPS.filter((g) => byGroup[g] > 0));
 	const summary = $derived(`${total} ${total === 1 ? 'Einsatz' : 'Einsätze'} ${year}: ${groups.map((g) => `${GROUP_PLURAL[g]} ${byGroup[g]}`).join(', ')}`);
 
@@ -83,20 +76,15 @@
 	</div>
 
 	<div class="strip" bind:this={box} onpointerover={over} onpointerleave={() => pointer === 'mouse' && (active = null)} onclickcapture={click} role="img" aria-label={summary}>
-		{#each months as m (m.mm)}
-			<div class="month" class:future={m.future && !m.items.length}>
-				<div class="ticks" aria-hidden="true">
-					{#each m.items as t (t.i)}
-						{#if t.slug}
-							<a href="/beitrag/{t.slug}" class="t" data-group={t.group} data-i={t.i} class:on={active?.i === t.i} tabindex="-1" aria-label={t.title}></a>
-						{:else}
-							<span class="t" data-group={t.group} data-i={t.i} class:on={active?.i === t.i}></span>
-						{/if}
-					{/each}
-				</div>
-				<span class="m" aria-hidden="true">{m.label}</span>
-			</div>
-		{/each}
+		<div class="ticks" aria-hidden="true">
+			{#each flat as t (t.i)}
+				{#if t.slug}
+					<a href="/beitrag/{t.slug}" class="t" data-group={t.group} data-i={t.i} class:on={active?.i === t.i} tabindex="-1" aria-label={t.title}></a>
+				{:else}
+					<span class="t" data-group={t.group} data-i={t.i} class:on={active?.i === t.i}></span>
+				{/if}
+			{/each}
+		</div>
 
 		{#if tip && active}
 			<div class="tip" style:left="{active.x}px" aria-hidden="true">
@@ -153,42 +141,26 @@
 		text-underline-offset: 3px;
 	}
 
-	/* ---------------- Strichliste: zwölf gleich breite Monate, Striche wachsen von der Grundlinie */
+	/* ---------------- Strichliste: alle Einsätze des Jahres in einer Reihe, Striche wachsen von der Grundlinie */
 	.strip {
 		position: relative;
-		display: grid;
-		grid-template-columns: repeat(12, minmax(0, 1fr));
-		gap: 0 0.3rem;
 		margin-top: 1.5rem;
-	}
-	@media (min-width: 768px) {
-		.strip {
-			gap: 0 0.6rem;
-		}
-	}
-	.month {
-		display: flex;
-		flex-direction: column;
-		min-width: 0;
 	}
 	.ticks {
 		display: flex;
 		align-items: flex-end;
-		gap: 1px;
-		height: 2.75rem;
+		gap: 2px;
+		height: 3rem;
 		border-bottom: 2px solid var(--c-ink);
 	}
 	@media (min-width: 768px) {
 		.ticks {
-			gap: 2px;
+			gap: 3px;
 			height: 3.5rem;
 		}
 	}
-	.future .ticks {
-		border-bottom: 2px dotted var(--c-line-strong);
-	}
 	.t {
-		flex: 0 1 5px;
+		flex: 0 1 7px;
 		min-width: 1px;
 		height: 100%;
 		border-radius: 1px 1px 0 0;
@@ -200,22 +172,6 @@
 	}
 	a.t {
 		cursor: pointer;
-	}
-	.m {
-		margin-top: 0.4rem;
-		font-size: 0.75rem;
-		font-weight: 600;
-		color: var(--c-ink-3);
-		white-space: nowrap;
-		overflow: hidden;
-	}
-	@media (min-width: 640px) {
-		.m {
-			font-size: 0.85rem;
-		}
-	}
-	.future .m {
-		color: var(--c-line-strong);
 	}
 
 	[data-group='brand'] {
