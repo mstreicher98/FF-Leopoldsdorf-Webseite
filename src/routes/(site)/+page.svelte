@@ -5,7 +5,7 @@
 	import EventItem from '$lib/components/site/EventItem.svelte';
 	import PostCard from '$lib/components/site/PostCard.svelte';
 	import Seo from '$lib/components/site/Seo.svelte';
-	import Strichliste from '$lib/components/site/Strichliste.svelte';
+	import StatsBar from '$lib/components/site/StatsBar.svelte';
 	import { mediaSrc, mediaSrcset } from '$lib/media';
 
 	let { data } = $props();
@@ -58,15 +58,16 @@
 	</section>
 {/if}
 
-<section class="wrap block" aria-label="Einsätze {data.stats.year}">
-	<Strichliste
-		year={data.stats.year}
-		ticks={data.ticks}
-		byGroup={data.stats.byGroup}
-		total={data.stats.total}
-		more={{ href: '/taetigkeiten/einsaetze', label: 'Zur Einsatzübersicht' }}
-		note="Jeder Strich ist ein Einsatz, auch wenn es dazu keinen eigenen Bericht gibt. Brandsicherheitswachen zählen nicht mit."
-	/>
+<section class="wrap block" aria-labelledby="jahr">
+	<div class="sec-head">
+		<h2 id="jahr" class="sec-title">Einsätze {data.stats.year}</h2>
+		<a href="/taetigkeiten/einsaetze" class="more">Zur Einsatzübersicht</a>
+	</div>
+	{#if data.stats.total > 0}
+		<StatsBar stats={data.stats} note="Gezählt werden alle Einsätze des Jahres, auch solche ohne eigenen Bericht. Brandsicherheitswachen zählen nicht mit." />
+	{:else}
+		<p class="empty">Für {data.stats.year} sind noch keine Einsätze eingetragen.</p>
+	{/if}
 </section>
 
 <div class="wrap block split">

@@ -3,7 +3,7 @@ import { alias } from 'drizzle-orm/sqlite-core';
 import { todayVienna } from '$lib/format';
 import type { MediaRef } from '$lib/media';
 import type { EinsatzGroup } from '$lib/einsatz';
-import type { EinsatzTick, EventView, MemberView, MenuPage, PostSummary, VehicleRef } from '$lib/types';
+import type { EventView, MemberView, MenuPage, PostSummary, VehicleRef } from '$lib/types';
 import { db } from './db';
 import {
 	einsatzarten,
@@ -198,43 +198,6 @@ export async function postVehicleRefs(postId: number): Promise<VehicleRef[]> {
 		.where(eq(postVehicles.postId, postId))
 		.orderBy(asc(vehicles.sortOrder), asc(vehicles.name))
 		.all();
-}
-
-/**
- * Jeder gezählte Einsatz eines Jahres in zeitlicher Reihenfolge, für die Strichliste.
- * Gleiche Auswahl wie die Einsatzstatistik; ein Link nur, wenn es einen öffentlichen Bericht gibt.
- */
-export async function einsatzTicks(year: number): Promise<EinsatzTick[]> {
-	const rows = await db
-		.select({
-			date: posts.date,
-			time: posts.time,
-			title: posts.title,
-			slug: posts.slug,
-			status: posts.status,
-			code: einsatzarten.code,
-			group: einsatzarten.group
-		})
-		.from(posts)
-		.leftJoin(einsatzarten, eq(einsatzarten.id, posts.einsatzartId))
-		.where(
-			and(
-				eq(posts.category, 'einsatz'),
-				inArray(posts.status, ['veroeffentlicht', 'statistik']),
-				sql`substr(${posts.date}, 1, 4) = ${String(year)}`,
-				sql`(${einsatzarten.id} IS NULL OR ${einsatzarten.countsInStats} = 1)`
-			)
-		)
-		.orderBy(asc(posts.date), sql`${posts.time} IS NULL`, asc(posts.time), asc(posts.id))
-		.all();
-	return rows.map((r) => ({
-		date: r.date,
-		time: r.time,
-		title: r.title,
-		code: r.code,
-		group: r.group ?? 'sonstiges',
-		slug: r.status === 'veroeffentlicht' ? r.slug : null
-	}));
 }
 
 /* ------------------------------------------------------------ Termine */

@@ -5,7 +5,7 @@
 	import Pagination from '$lib/components/site/Pagination.svelte';
 	import PostCard from '$lib/components/site/PostCard.svelte';
 	import Seo from '$lib/components/site/Seo.svelte';
-	import Strichliste from '$lib/components/site/Strichliste.svelte';
+	import StatsBar from '$lib/components/site/StatsBar.svelte';
 	import { CATEGORIES, CATEGORY_ORDER } from '$lib/categories';
 
 	let { data } = $props();
@@ -55,13 +55,12 @@
 
 	{#if data.stats}
 		<section class="stats" aria-label="Einsätze {data.stats.year}">
-			<Strichliste
-				year={data.stats.year}
-				ticks={data.ticks}
-				byGroup={data.stats.byGroup}
-				total={data.stats.total}
-				note="Jeder Strich ist ein Einsatz, auch wenn es dazu keinen eigenen Bericht gibt. Brandsicherheitswachen zählen nicht mit."
-			/>
+			<h2 class="stats-title">Einsatzstatistik {data.stats.year}</h2>
+			{#if data.stats.total}
+				<StatsBar stats={data.stats} note="Gezählt werden alle Einsätze, auch solche ohne eigenen Bericht. Brandsicherheitswachen zählen nicht mit." />
+			{:else}
+				<p class="empty">Für {data.stats.year} sind noch keine Einsätze eingetragen.</p>
+			{/if}
 		</section>
 	{/if}
 
@@ -145,6 +144,13 @@
 	}
 	.stats {
 		margin-top: 2.5rem;
+	}
+	.stats-title {
+		margin-bottom: 1rem;
+		font-size: 1.35rem;
+		font-weight: 800;
+		font-stretch: 72%;
+		text-transform: uppercase;
 	}
 	.count {
 		margin-top: 2.5rem;

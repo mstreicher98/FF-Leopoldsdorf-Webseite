@@ -11,17 +11,6 @@ export interface EinsatzInfo {
 	ort: string | null;
 }
 
-/** Ein Strich der Strichliste: ein gezählter Einsatz */
-export interface EinsatzTick {
-	date: string;
-	time: string | null;
-	title: string;
-	code: string | null;
-	group: EinsatzGroup;
-	/** nur bei öffentlichem Bericht */
-	slug: string | null;
-}
-
 export interface PostSummary {
 	id: number;
 	slug: string;
